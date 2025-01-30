@@ -6,8 +6,9 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const userRoutes = require('./routers/userRoutes');
+const initializeSockets = require('./sockets/socket');
 
-dotenv.config(); // Zorg dat dotenv bovenaan staat
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -20,7 +21,7 @@ const sessionMiddleware = session({
     cookie: {
         secure: false,
         httpOnly: true,
-        maxAge: 3600000 // 1 uur
+        maxAge: 3600000
     }
 });
 
@@ -29,20 +30,15 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Serve de loginpagina en registratiepagina
+// Serve de login- en registratiepagina's
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'index.html'));
 });
 
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'view', 'reg.html'));
-});
-
-app.use(express.static(path.join(__dirname, 'view')));
-
-
-// Gebruik de router voor gebruikersfunctionaliteiten
 app.use(userRoutes);
+
+// Initialiseer de Socket.IO-setup
+initializeSockets(server);
 
 // Start de server
 const PORT = process.env.PORT || 3000;
