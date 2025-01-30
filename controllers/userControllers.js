@@ -10,22 +10,20 @@ exports.loginUser = async (req, res) => {
             return res.status(401).send('Gebruiker bestaat niet.');
         }
 
-        // Wachtwoord valideren
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).send('Ongeldig wachtwoord.');
         }
 
-        // Sla gegevens op in de sessie
         req.session.userId = user.id;
         req.session.username = user.username;
-
-        res.redirect('/home');
+        res.redirect('/home');  // Verwijs naar de juiste route
     } catch (err) {
         console.error('Fout bij inloggen:', err);
         res.status(500).send('Er ging iets fout bij het inloggen.');
     }
 };
+
 
 exports.registerUser = async (req, res) => {
     const { username, password } = req.body;

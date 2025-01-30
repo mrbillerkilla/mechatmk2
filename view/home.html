@@ -3,39 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="home.css">
+    <title>Chat Window</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat-window {
+            border: 1px solid black;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        input, button {
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <a href="#" style="color: green;">Home</a>
-            <a href="/personal-chat.html">Chat</a>
-            <a href="#">Groepchat</a>
-            <div class="me" id="user-info">me</div>
-        </header>
-        <aside class="sidebar">
-            <div class="recent">
-                <h3>Recent:</h3>
-                <p>Mike - Online</p>
-                <p>Mike - Offline</p>
-            </div>
-            <button class="btn" onclick="window.location.href='groupCreate.html'">Maak een groepschat!</button>
-        </aside>
-        <main class="main">
-            <h1>personal chat</h1>
-        </main>
-        <footer class="explore">
-            <h3>Beschikbare groepen:</h3>
-            <div class="group-list" id="group-list">
-                <!-- Groepen worden hier dynamisch toegevoegd -->
-            </div>
-            &copy; 2025 Chat App
-        </footer>
+    <h1>Live Chat</h1>
+    
+    <!-- Chatvenster -->
+    <div id="chat-window">
+        <p><em>Berichten verschijnen hier...</em></p>
     </div>
 
+    <!-- Bericht invoer -->
+    <input type="text" id="message-input" placeholder="Typ een bericht...">
+    <button onclick="sendMessage()">Verstuur</button>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        
+        const socket = io();  // Verbind met de Socket.IO-server
+
+        // Functie om een bericht te verzenden
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+
+            if (message !== '') {
+                socket.emit('chatMessage', {
+                    sender: 'User1',  // Hardcoded voor nu, maar later dynamisch maken
+                    message: message
+                });
+                messageInput.value = '';  // Leegmaken na verzenden
+            }
+        }
+
+        // Luister naar inkomende berichten
+        socket.on('chatMessage', (data) => {
+            const chatWindow = document.getElementById('chat-window');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = `[${data.timestamp}] ${data.sender}: ${data.message}`;
+            chatWindow.appendChild(newMessage);
+            chatWindow.scrollTop = chatWindow.scrollHeight;  // Scroll automatisch naar beneden
+        });
+
+        // Versturen bij Enter drukken
+        document.getElementById('message-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 </html>

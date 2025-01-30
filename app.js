@@ -35,10 +35,17 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'index.html'));
 });
 
+app.get('/home', (req, res) => {
+    res.sendFile(path.join(__dirname, 'view', 'home.html'));
+});
+
+
 app.use(userRoutes);
 
 // Initialiseer de Socket.IO-setup
 initializeSockets(server);
+
+
 
 // Start de server
 const PORT = process.env.PORT || 3000;
