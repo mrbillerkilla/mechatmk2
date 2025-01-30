@@ -21,6 +21,9 @@
     </style>
 </head>
 <body>
+    <div id="user-info">
+        <p>Gebruikersinformatie laden...</p>
+    </div>
     <h1>Live Chat</h1>
     
     <!-- Chatvenster -->
@@ -33,38 +36,72 @@
     <button onclick="sendMessage()">Verstuur</button>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();  // Verbind met de Socket.IO-server
+    <script>         
+    // Haal de user-info op via de server
+        fetch('/user-info')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('user-info').innerHTML = `
+                    <p>Ingelogd als: <strong>${data.username}</strong></p>
+                    <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
+                `;
+                // Zet de userId beschikbaar voor berichten
+                window.currentUserId = data.userId;
+            })
+            .catch(err => {
+                console.error('Fout bij ophalen van gebruikersinformatie:', err);
+                document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
+            });
 
-        // Functie om een bericht te verzenden
-        function sendMessage() {
+            
+        const socket = io();  // Socket.IO blijft hetzelfde voor live updates    
+        async function sendMessage() {
             const messageInput = document.getElementById('message-input');
             const message = messageInput.value.trim();
-
+    
             if (message !== '') {
-                socket.emit('chatMessage', {
-                    sender: 'User1',  // Hardcoded voor nu, maar later dynamisch maken
-                    message: message
-                });
-                messageInput.value = '';  // Leegmaken na verzenden
+                // Stuur het bericht naar de server om op te slaan in de database
+                try {
+                    await fetch('/saveMessage', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            group_id: 1,  // Voor nu hardcoded
+                            sender_id: window.currentUserId,  // Uit sessie (bijvoorbeeld uit /user-info)
+                            message: message
+                        })
+                    });
+    
+                    // Broadcast naar de chat via Socket.IO (blijft hetzelfde)
+                    socket.emit('chatMessage', {
+                        sender: document.getElementById('user-info').textContent.split(': ')[1],  // Username tonen
+                        message: message
+                    });
+    
+                    messageInput.value = '';  // Maak het invoerveld leeg
+                } catch (err) {
+                    console.error('Fout bij opslaan van bericht:', err);
+                }
             }
         }
-
-        // Luister naar inkomende berichten
+    
+        // Luister naar inkomende berichten via Socket.IO
         socket.on('chatMessage', (data) => {
             const chatWindow = document.getElementById('chat-window');
             const newMessage = document.createElement('p');
-            newMessage.textContent = `[${data.timestamp}] ${data.sender}: ${data.message}`;
+            newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
             chatWindow.appendChild(newMessage);
             chatWindow.scrollTop = chatWindow.scrollHeight;  // Scroll automatisch naar beneden
         });
-
+    
         // Versturen bij Enter drukken
         document.getElementById('message-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
-    </script>
+    </script>    
 </body>
 </html>

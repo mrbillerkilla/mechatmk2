@@ -7,6 +7,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const userRoutes = require('./routers/userRoutes');
 const initializeSockets = require('./sockets/socket');
+const chatRoutes = require('./routers/chatRoutes');
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(sessionMiddleware);
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(chatRoutes);
 
 // Serve de login- en registratiepagina's
 app.get('/', (req, res) => {
