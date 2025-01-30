@@ -29,10 +29,17 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Serve de loginpagina
+// Serve de loginpagina en registratiepagina
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'index.html'));
 });
+
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'view', 'reg.html'));
+});
+
+app.use(express.static(path.join(__dirname, 'view')));
+
 
 // Gebruik de router voor gebruikersfunctionaliteiten
 app.use(userRoutes);
