@@ -17,7 +17,7 @@ exports.loginUser = async (req, res) => {
 
         req.session.userId = user.id;
         req.session.username = user.username;
-        res.redirect('/home');  // Verwijs naar de juiste route
+        res.redirect('/home.html');  // Verwijs naar de juiste route
     } catch (err) {
         console.error('Fout bij inloggen:', err);
         res.status(500).send('Er ging iets fout bij het inloggen.');

@@ -31,22 +31,30 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(chatRoutes);
+app.use(userRoutes);
+
+
 
 // Serve de login- en registratiepagina's
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'index.html'));
 });
 
-app.get('/home', (req, res) => {
-    res.sendFile(path.join(__dirname, 'view', 'home.html'));
-});
+// Route voor de homepagina
+// app.get('/home', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'view', 'home.html'));
+// });
 
+// // Route voor de registratiepagina
+// app.get('/register', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'view', 'reg.html'));
+// });
 
-app.use(userRoutes);
+app.use(express.static(path.join(__dirname, 'view')));
+
 
 // Initialiseer de Socket.IO-setup
 initializeSockets(server);
-
 
 
 // Start de server

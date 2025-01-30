@@ -36,8 +36,8 @@
     <button onclick="sendMessage()">Verstuur</button>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>         
-    // Haal de user-info op via de server
+    <script>
+        // Haal de user-info op via de server
         fetch('/user-info')
             .then(response => response.json())
             .then(data => {
@@ -45,23 +45,24 @@
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
-                // Zet de userId beschikbaar voor berichten
+                // Zet de userId en username beschikbaar voor berichten
                 window.currentUserId = data.userId;
+                window.currentUsername = data.username;
             })
             .catch(err => {
                 console.error('Fout bij ophalen van gebruikersinformatie:', err);
                 document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
-
-            
-        const socket = io();  // Socket.IO blijft hetzelfde voor live updates    
+    
+        const socket = io();  // Verbind met Socket.IO voor live updates
+    
         async function sendMessage() {
             const messageInput = document.getElementById('message-input');
             const message = messageInput.value.trim();
     
             if (message !== '') {
-                // Stuur het bericht naar de server om op te slaan in de database
                 try {
+                    // Stuur het bericht naar de server om op te slaan in de database
                     await fetch('/saveMessage', {
                         method: 'POST',
                         headers: {
@@ -69,14 +70,14 @@
                         },
                         body: JSON.stringify({
                             group_id: 1,  // Voor nu hardcoded
-                            sender_id: window.currentUserId,  // Uit sessie (bijvoorbeeld uit /user-info)
+                            sender_id: window.currentUserId,  // Haal uit de sessie
                             message: message
                         })
                     });
     
-                    // Broadcast naar de chat via Socket.IO (blijft hetzelfde)
+                    // Emit het bericht naar de chat via Socket.IO
                     socket.emit('chatMessage', {
-                        sender: document.getElementById('user-info').textContent.split(': ')[1],  // Username tonen
+                        sender: window.currentUsername,  // Toon de username
                         message: message
                     });
     
@@ -102,6 +103,7 @@
                 sendMessage();
             }
         });
-    </script>    
+    </script>
+       
 </body>
 </html>
