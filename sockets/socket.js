@@ -18,10 +18,20 @@ module.exports = (server) => {
             });
         });
 
-        socket.on('privateMessage', (data) => {
-            socket.to(data.receiver_id).emit('privateMessage', data);
+        // Wanneer een gebruiker verbinding maakt, voeg hem toe aan zijn unieke room
+        socket.on('joinPrivateChat', (userId, receiverId) => {
+            const roomName = `room_${Math.min(userId, receiverId)}_${Math.max(userId, receiverId)}`;
+            console.log(`Gebruiker met ID ${userId} heeft zich aangesloten bij room ${roomName}`);
+            socket.join(roomName);
         });
-        
+
+        socket.on('privateMessage', (data) => {
+            const roomName = `room_${Math.min(data.sender_id, data.receiver_id)}_${Math.max(data.sender_id, data.receiver_id)}`;
+            console.log(`Bericht ontvangen van: ${data.sender_id} en verzenden naar room: ${roomName}`);
+            
+            // Verstuur het bericht naar alle gebruikers in de room
+            io.to(roomName).emit('privateMessage', data);
+        });      
     });
 
     return io;

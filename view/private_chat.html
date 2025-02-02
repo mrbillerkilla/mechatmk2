@@ -57,71 +57,85 @@
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
 
-                // Haal oude berichten op
-                fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
-                    .then(res => res.json())
-                    .then(messages => {
-                        const chatWindow = document.getElementById('chat-window');
-                        chatWindow.innerHTML = '';
+                // Verbind de gebruiker met de unieke room gebaseerd op beide userIds
+                console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
+                socket.emit('joinPrivateChat', window.currentUserId, receiverId);
 
-                        messages.forEach(msg => {
-                            const messageElement = document.createElement('p');
-                            const sender = msg.sender_id === window.currentUserId ? 'Jij' : `User ${msg.sender_id}`;
-                            messageElement.textContent = `[${new Date(msg.created_at).toLocaleTimeString()}] ${sender}: ${msg.message}`;
-                            chatWindow.appendChild(messageElement);
-                        });
+            // Verbind de gebruiker met zijn unieke room
+            socket.emit('joinPrivateChat', window.currentUserId);
+                    // Haal oude berichten op
+                    fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
+                        .then(res => res.json())
+                        .then(messages => {
+                            console.log('Oude berichten:', messages); 
+                            const chatWindow = document.getElementById('chat-window');
+                            chatWindow.innerHTML = '';
 
-                        chatWindow.scrollTop = chatWindow.scrollHeight;
-                    })
-                    .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
+                            messages.forEach(msg => {
+                                const messageElement = document.createElement('p');
+                                const sender = msg.sender_id === window.currentUserId ? 'Jij' : `User ${msg.sender_id}`;
+                                messageElement.textContent = `[${new Date(msg.created_at).toLocaleTimeString()}] ${sender}: ${msg.message}`;
+                                chatWindow.appendChild(messageElement);
+                            });
+
+                            chatWindow.scrollTop = chatWindow.scrollHeight;
+                        })
+                        .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
             })
             .catch(err => {
                 console.error('Fout bij ophalen van gebruikersinformatie:', err);
                 document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
 
-        async function sendMessage() {
-            const messageInput = document.getElementById('message-input');
-            const message = messageInput.value.trim();
-    
-            if (message !== '') {
-                try {
-                    // Stuur bericht naar de server
-                    await fetch('/savePrivateMessage', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
+            async function sendMessage() {
+                const messageInput = document.getElementById('message-input');
+                const message = messageInput.value.trim();
+
+                if (message !== '') {
+                    try {
+                        await fetch('/savePrivateMessage', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                sender_id: window.currentUserId,
+                                receiver_id: receiverId,
+                                message: message
+                            })
+                        });
+
+                        console.log('Verzend bericht naar de server via Socket.IO:', {
+                            sender: window.currentUsername,
                             sender_id: window.currentUserId,
-                            receiver_id: receiverId,
-                            message: message
-                        })
-                    });
+                            message: message,
+                            receiver_id: receiverId
+                        });
 
-                    // Verstuur bericht via Socket.IO
-                    socket.emit('privateMessage', {
-                        sender: window.currentUsername,
-                        message: message,
-                        receiver_id: receiverId
-                    });
+                        socket.emit('privateMessage', {
+                            sender: window.currentUsername,
+                            sender_id: window.currentUserId,
+                            message: message,
+                            receiver_id: receiverId
+                        });
 
-                    messageInput.value = '';
-                } catch (err) {
-                    console.error('Fout bij opslaan van bericht:', err);
+                        messageInput.value = '';  // Maak het invoerveld leeg
+                    } catch (err) {
+                        console.error('Fout bij opslaan van bericht:', err);
+                    }
                 }
             }
-        }
+
 
         // Luister naar inkomende berichten
         socket.on('privateMessage', (data) => {
-            if (data.receiver_id === window.currentUserId || data.sender_id === window.currentUserId) {
-                const chatWindow = document.getElementById('chat-window');
-                const newMessage = document.createElement('p');
-                newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
-                chatWindow.appendChild(newMessage);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            }
+            console.log('Nieuw bericht ontvangen via Socket.IO:', data);
+
+            const chatWindow = document.getElementById('chat-window');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
+            chatWindow.appendChild(newMessage);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         });
 
         // Versturen bij Enter drukken
