@@ -3,38 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>group_chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        #chat-window {
-            border: 1px solid black;
-            height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        input, button {
-            padding: 10px;
-        }
-    </style>
+    <title>Groepschat</title>
+    <link rel="stylesheet" href="group_chat.css">
 </head>
 <body>
-    <div id="user-info">
-        <p>Gebruikersinformatie laden...</p>
-    </div>
-    <h1>Groepschat</h1>
-    
-    <!-- Chatvenster -->
-    <div id="chat-window">
-        <p><em>Berichten verschijnen hier...</em></p>
-    </div>
+    <nav class="menu-bar">
+        <a href="home.html">Home</a>
+        <a href="chat.html">Chat</a>
+        <a href="groupchat.html" class="active">Groepchat</a>
+        <a href="blogs.html">Blogs</a>
+        <div class="profile-icon">me</div>
+    </nav>
+    <div id="user-info"></div>
+    <div class="container">
+        <aside class="group-list-section">
+            <h2>Groepen:</h2>
+            <div id="group-list">
+                <!-- Groepen worden hier dynamisch toegevoegd -->
+            </div>
+        </aside>
 
-    <!-- Bericht invoer -->
-    <input type="text" id="message-input" placeholder="Typ een bericht...">
-    <button onclick="sendMessage()">Verstuur</button>
-
+        <section class="chat-section">
+            <div id="chat-window">
+                <p><em>Berichten verschijnen hier...</em></p>
+            </div>
+            <div class="message-input">
+                <input type="text" id="message-input" placeholder="Typ een bericht...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </section>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Functie om de group_id uit de URL te halen
@@ -128,6 +126,25 @@
                 sendMessage();
             }
         });
+        fetch('/groups')
+            .then(response => response.json())
+            .then(groups => {
+                const groupListDiv = document.getElementById('group-list');
+
+                groups.forEach(group => {
+                    // Maak een knop voor elke groep
+                    const button = document.createElement('button');
+                    button.textContent = group.group_name;
+                    button.onclick = () => {
+                        // Ga naar de groepschat met de juiste group_id
+                        window.location.href = `/group_chat.html?group_id=${group.id}`;
+                    };
+                    groupListDiv.appendChild(button);
+                });
+            })
+            .catch(err => {
+                console.error('Fout bij ophalen van groepen:', err);
+            });
     </script>
 </body>
 </html>

@@ -4,36 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persoonlijke Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        #chat-window {
-            border: 1px solid black;
-            height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        input, button {
-            padding: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="private_chat.css">
 </head>
+<div id="user-info"></div>
 <body>
-    <div id="user-info">
-        <p>Gebruikersinformatie laden...</p>
-    </div>
-    <h1>Persoonlijke Chat</h1>
+    <nav class="menu-bar">
+        <a href="home.html">Home</a>
+        <a href="private_chat.css" class="active">Chat</a>
+        <a href="group_chat.html">Groepchat</a>
+        <a href="blogs.html">Blogs</a>
+        <div class="profile-icon">me</div>
+    </nav>
 
-    <!-- Chatvenster -->
-    <div id="chat-window">
-        <p><em>Berichten verschijnen hier...</em></p>
-    </div>
+    <div class="container">
+        <aside class="contacts-section">
+            <h2>Mensen:</h2>
+            <div id="private-chats"></div>
+        </aside>
 
-    <!-- Bericht invoer -->
-    <input type="text" id="message-input" placeholder="Typ een bericht...">
-    <button onclick="sendMessage()">Verstuur</button>
+        <section class="chat-section">
+            <div id="chat-window">
+                <p><em>Berichten verschijnen hier...</em></p>
+            </div>
+            <div class="message-input">
+                <input type="text" id="message-input" placeholder="Typ een bericht...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </section>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -60,6 +58,8 @@
                 // Verbind de gebruiker met de unieke room gebaseerd op beide userIds
                 console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
                 socket.emit('joinPrivateChat', window.currentUserId, receiverId);
+                
+                loadPrivateChats();
 
             // Verbind de gebruiker met zijn unieke room
             socket.emit('joinPrivateChat', window.currentUserId);
@@ -144,6 +144,30 @@
                 sendMessage();
             }
         });  
+
+        function loadPrivateChats() {
+            fetch('/users')
+                .then(response => response.json())
+                .then(users => {
+                    console.log('Gebruikerslijst ontvangen:', users);  // Debugging
+
+                    const privateChatsDiv = document.getElementById('private-chats');
+                    privateChatsDiv.innerHTML = '';  // Maak de lijst leeg
+
+                    users.forEach(user => {
+                        const button = document.createElement('button');
+                        button.textContent = `${user.username}`;
+                        button.style.margin = '10px';
+                        button.onclick = () => {
+                            window.location.href = `/private_chat.html?user_id=${user.id}`;
+                        };
+
+                        privateChatsDiv.appendChild(button);
+                    });
+                })
+                .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
+        }
+
     </script>
 </body>
 </html>

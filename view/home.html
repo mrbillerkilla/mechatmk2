@@ -3,21 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>home</title>
+    <title>Home</title>
     <link rel="stylesheet" href="home.css">
 </head>
 <body>
-    <div id="user-info">
-        <p>Gebruikersinformatie laden...</p>
-    </div>
-    <h1>Live Chat</h1>
+    <nav class="menu-bar">
+        <a href="home.html">Home</a>
+        <a href="chat.html">Chat</a>
+        <a href="groupchat.html">Groepchat</a>
+        <a href="blogs.html">Blogs</a>
+        <div class="profile-icon">me</div>
+    </nav>
+    <div id="user-info"></div>
 
-    <h1>Beschikbare Groepen</h1>
-    <div id="group-list"></div>
+    <main class="container">
+        <section class="group-creation">
+            <h2>Maak ook een groep:</h2>
+            <p>Benodigdheden:</p>
+            <ul>
+                <li>een coole naam :)</li>
+            </ul>
+            <button onclick="window.location.href='create.html'">Make Group</button>
+        </section>
 
+        <section class="people-section">
+            <h2>Mensen:</h2>
+            <div id="private-chats"></div>
+        </section>
 
-    <h2>Beschikbare Privéchats:</h2>
-    <div id="private-chats"></div>
+        <section class="explore-section">
+            <h2>Explore!</h2>
+            <div id="group-list"></div>
+        </section>
+    </main>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>

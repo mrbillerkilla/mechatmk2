@@ -98,6 +98,23 @@ router.post('/savePrivateMessage', async (req, res) => {
         res.status(500).send('Er is een fout opgetreden');
     }
 });
+router.post('/createGroups', async (req, res) => {
+    const { group_name } = req.body;
 
+    if (!group_name) {
+        return res.status(400).send('Group name is vereist.');
+    }
+
+    try {
+        const [result] = await pool.promise().query(
+            'INSERT INTO `groups` (group_name) VALUES (?)', // Backticks rond `groups`
+            [group_name]
+        );
+        res.status(201).json({ group_id: result.insertId, message: 'Groep succesvol aangemaakt!' });
+    } catch (err) {
+        console.error('Fout bij aanmaken van groep:', err);
+        res.status(500).send('Er is een fout opgetreden bij het aanmaken van de groep.');
+    };
+});
 
 module.exports = router;
