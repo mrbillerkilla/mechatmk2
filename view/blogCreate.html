@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog aanmaken</title>
+    <link rel="stylesheet" href="create.css">
+</head>
+<body>
+    <div class="navbar">
+        <div><a href="index.html">Home</a></div>
+        <div><a href="group_chat.html">Chat</a></div>
+        <div><a href="group_chat.html">Groepchat</a></div>
+        <div><a href="blogs.html">Blogs</a></div>
+    </div>
+
+    <div class="container">
+        <h1>Blog aanmaken!!!</h1>
+        <form id="blog-form" action="/createBlog" method="POST">
+            <label for="title">Titel:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="content">Inhoud:</label>
+            <textarea id="content" name="content" rows="5" required></textarea>
+
+            <button type="submit" class="create-button">Create</button>
+        </form>
+    </div>
+</body>
+</html>

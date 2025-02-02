@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs</title>
+    <link rel="stylesheet" href="blogs.css">
+</head>
+<body>
+    <div class="navbar">
+        <div><a href="index.html">Home</a></div>
+        <div><a href="group_chat.html">Chat</a></div>
+        <div><a href="group_chat.html">Groepchat</a></div>
+        <div><a href="blogs.html" class="active">Blogs</a></div>
+    </div>
+
+    <h1 class="title">Blogs</h1>
+
+    <div id="blog-container" class="blog-grid">
+        <!-- Dynamisch gegenereerde blogs komen hier -->
+    </div>
+
+    <div class="create-blog-button">
+        <a href="blogCreate.html">Maak ook een blog!</a>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    // Haal blogs op bij de server
+    fetch('/api/blogs')
+        .then(response => response.json())
+        .then(data => {
+            const blogContainer = document.getElementById('blog-container');
+
+            data.forEach(blog => {
+                // Maak een HTML-structuur voor elke blog
+                const blogElement = document.createElement('div');
+                blogElement.classList.add('blog-post');
+
+                blogElement.innerHTML = `
+                    <h2>${blog.title}</h2>
+                    <p>${blog.content}</p>
+                    <p><em>Made by ${blog.author} op ${new Date(blog.created_at).toLocaleString()}</em></p>
+                `;
+
+                blogContainer.appendChild(blogElement);
+            });
+        })
+        .catch(error => console.error('Fout bij het ophalen van blogs:', error));
+});
+
+    </script>
+</body>
+</html>
