@@ -3,22 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Window</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        #chat-window {
-            border: 1px solid black;
-            height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        input, button {
-            padding: 10px;
-        }
-    </style>
+    <title>home</title>
+    <link rel="stylesheet" href="home.css">
 </head>
 <body>
     <div id="user-info">
@@ -32,9 +18,6 @@
 
     <h2>Beschikbare Privéchats:</h2>
     <div id="private-chats"></div>
-    <!-- Bericht invoer -->
-    <!-- <input type="text" id="message-input" placeholder="Typ een bericht...">
-    <button onclick="sendMessage()">Verstuur</button> -->
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
