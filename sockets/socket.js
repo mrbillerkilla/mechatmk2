@@ -17,6 +17,11 @@ module.exports = (server) => {
                 timestamp: new Date().toLocaleTimeString()
             });
         });
+
+        socket.on('privateMessage', (data) => {
+            socket.to(data.receiver_id).emit('privateMessage', data);
+        });
+        
     });
 
     return io;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>group_chat</title>
+    <title>Persoonlijke Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,8 +24,8 @@
     <div id="user-info">
         <p>Gebruikersinformatie laden...</p>
     </div>
-    <h1>Groepschat</h1>
-    
+    <h1>Persoonlijke Chat</h1>
+
     <!-- Chatvenster -->
     <div id="chat-window">
         <p><em>Berichten verschijnen hier...</em></p>
@@ -37,14 +37,14 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Functie om de group_id uit de URL te halen
-        function getGroupIdFromUrl() {
+        // Functie om de ontvanger (receiver_id) uit de URL te halen
+        function getReceiverIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('group_id') || 1;  // Standaard groep_id = 1 als niets is geselecteerd
+            return params.get('user_id') || 1;  // Standaard chat met user_id=1 als test
         }
 
-        const groupId = getGroupIdFromUrl();  // Haal de juiste groep op
-        const socket = io();  // Verbind met Socket.IO voor live updates
+        const receiverId = getReceiverIdFromUrl();
+        const socket = io();
 
         // Haal de user-info op via de server
         fetch('/user-info')
@@ -54,24 +54,23 @@
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
-                // Zet de userId en username beschikbaar voor berichten
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
 
-                // Haal oude berichten op voor de geselecteerde groep
-                fetch(`/messages/${groupId}`)
+                // Haal oude berichten op
+                fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
                     .then(res => res.json())
                     .then(messages => {
                         const chatWindow = document.getElementById('chat-window');
-                        chatWindow.innerHTML = '';  // Leeg het venster eerst
+                        chatWindow.innerHTML = '';
 
                         messages.forEach(msg => {
                             const messageElement = document.createElement('p');
-                            messageElement.textContent = `[${new Date(msg.created_at).toLocaleTimeString()}] User ${msg.sender_id}: ${msg.message}`;
+                            const sender = msg.sender_id === window.currentUserId ? 'Jij' : `User ${msg.sender_id}`;
+                            messageElement.textContent = `[${new Date(msg.created_at).toLocaleTimeString()}] ${sender}: ${msg.message}`;
                             chatWindow.appendChild(messageElement);
                         });
 
-                        // Scroll automatisch naar beneden
                         chatWindow.scrollTop = chatWindow.scrollHeight;
                     })
                     .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
@@ -87,39 +86,42 @@
     
             if (message !== '') {
                 try {
-                    // Stuur het bericht naar de server om op te slaan in de database
-                    await fetch('/saveMessage', {
+                    // Stuur bericht naar de server
+                    await fetch('/savePrivateMessage', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            group_id: groupId,  // Dynamisch opgehaalde group_id
                             sender_id: window.currentUserId,
+                            receiver_id: receiverId,
                             message: message
                         })
                     });
 
-                    // Emit het bericht naar de chat via Socket.IO
-                    socket.emit('chatMessage', {
+                    // Verstuur bericht via Socket.IO
+                    socket.emit('privateMessage', {
                         sender: window.currentUsername,
-                        message: message
+                        message: message,
+                        receiver_id: receiverId
                     });
 
-                    messageInput.value = '';  // Maak het invoerveld leeg
+                    messageInput.value = '';
                 } catch (err) {
                     console.error('Fout bij opslaan van bericht:', err);
                 }
             }
         }
 
-        // Luister naar inkomende berichten via Socket.IO
-        socket.on('chatMessage', (data) => {
-            const chatWindow = document.getElementById('chat-window');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
-            chatWindow.appendChild(newMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;  // Scroll automatisch naar beneden
+        // Luister naar inkomende berichten
+        socket.on('privateMessage', (data) => {
+            if (data.receiver_id === window.currentUserId || data.sender_id === window.currentUserId) {
+                const chatWindow = document.getElementById('chat-window');
+                const newMessage = document.createElement('p');
+                newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
+                chatWindow.appendChild(newMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
         });
 
         // Versturen bij Enter drukken
@@ -127,7 +129,7 @@
             if (e.key === 'Enter') {
                 sendMessage();
             }
-        });
+        });  
     </script>
 </body>
 </html>

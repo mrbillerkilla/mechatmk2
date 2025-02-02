@@ -34,6 +34,70 @@ router.post('/saveMessage', async (req, res) => {
     }
 });
 
-+
+// API-route om groepen op te halen
+router.get('/groups', async (req, res) => {
+    try {
+        const [rows] = await pool.promise().query('SELECT * FROM `groups`');
+        res.status(200).json(rows);
+    } catch (err) {
+        console.error('Fout bij ophalen van groepen:', err);
+        res.status(500).send('Kan de groepen niet ophalen.');
+    }
+});
+
+// Haal alle berichten op voor een specifieke groep
+router.get('/messages/:group_id', async (req, res) => {
+    const groupId = req.params.group_id;
+
+    try {
+        const [rows] = await pool.promise().query(
+            'SELECT * FROM group_messages WHERE group_id = ? ORDER BY created_at ASC',
+            [groupId]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error('Fout bij ophalen van berichten:', err);
+        res.status(500).send('Fout bij ophalen van berichten');
+    }
+});
+
+router.get('/private-messages/:sender_id/:receiver_id', async (req, res) => {
+    const { sender_id, receiver_id } = req.params;
+
+    try {
+        const [rows] = await pool.promise().query(
+            `SELECT * FROM private_messages 
+             WHERE (sender_id = ? AND receiver_id = ?) 
+             OR (sender_id = ? AND receiver_id = ?) 
+             ORDER BY created_at ASC`,
+            [sender_id, receiver_id, receiver_id, sender_id]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error('Fout bij ophalen van privéberichten:', err);
+        res.status(500).send('Fout bij ophalen van privéberichten');
+    }
+});
+
+router.post('/savePrivateMessage', async (req, res) => {
+    const { sender_id, receiver_id, message } = req.body;
+
+    try {
+        const [result] = await pool.promise().query(
+            `INSERT INTO private_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)`,
+            [sender_id, receiver_id, message]
+        );
+
+        if (result.affectedRows > 0) {
+            res.status(200).send('Bericht opgeslagen');
+        } else {
+            res.status(500).send('Fout bij opslaan in de database');
+        }
+    } catch (err) {
+        console.error('Fout bij opslaan van bericht:', err);
+        res.status(500).send('Er is een fout opgetreden');
+    }
+});
+
 
 module.exports = router;

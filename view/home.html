@@ -25,86 +25,83 @@
         <p>Gebruikersinformatie laden...</p>
     </div>
     <h1>Live Chat</h1>
-    
-    <!-- Chatvenster -->
-    <div id="chat-window">
-        <p><em>Berichten verschijnen hier...</em></p>
-    </div>
 
+    <h1>Beschikbare Groepen</h1>
+    <div id="group-list"></div>
+
+
+    <h2>Beschikbare Privéchats:</h2>
+    <div id="private-chats"></div>
     <!-- Bericht invoer -->
-    <input type="text" id="message-input" placeholder="Typ een bericht...">
-    <button onclick="sendMessage()">Verstuur</button>
+    <!-- <input type="text" id="message-input" placeholder="Typ een bericht...">
+    <button onclick="sendMessage()">Verstuur</button> -->
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Haal de user-info op via de server
         fetch('/user-info')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('user-info').innerHTML = `
-                    <p>Ingelogd als: <strong>${data.username}</strong></p>
-                    <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
-                `;
-                // Zet de userId en username beschikbaar voor berichten
-                window.currentUserId = data.userId;
-                window.currentUsername = data.username;
-            })
-            .catch(err => {
-                console.error('Fout bij ophalen van gebruikersinformatie:', err);
-                document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
-            });
-    
-        const socket = io();  // Verbind met Socket.IO voor live updates
-    
-        async function sendMessage() {
-            const messageInput = document.getElementById('message-input');
-            const message = messageInput.value.trim();
-    
-            if (message !== '') {
-                try {
-                    // Stuur het bericht naar de server om op te slaan in de database
-                    await fetch('/saveMessage', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            group_id: 1,
-                            sender_id: window.currentUserId,
-                            message: message
-                        })
-                    });
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('user-info').innerHTML = `
+                <p>Ingelogd als: <strong>${data.username}</strong></p>
+                <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
+            `;
+            // Zet de userId en username beschikbaar voor berichten
+            window.currentUserId = data.userId;
+            window.currentUsername = data.username;
+
+            // ✅ Roep hier de functie aan
+            loadPrivateChats();
+        })
+        .catch(err => {
+            console.error('Fout bij ophalen van gebruikersinformatie:', err);
+            document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
+        });
 
     
-                    // Emit het bericht naar de chat via Socket.IO
-                    socket.emit('chatMessage', {
-                        sender: window.currentUsername,  // Toon de username
-                        message: message
+            fetch('/groups')
+            .then(response => response.json())
+            .then(groups => {
+                const groupListDiv = document.getElementById('group-list');
+
+                groups.forEach(group => {
+                    // Maak een knop voor elke groep
+                    const button = document.createElement('button');
+                    button.textContent = group.group_name;
+                    button.onclick = () => {
+                        // Ga naar de groepschat met de juiste group_id
+                        window.location.href = `/group_chat.html?group_id=${group.id}`;
+                    };
+                    groupListDiv.appendChild(button);
+                });
+            })
+            .catch(err => {
+                console.error('Fout bij ophalen van groepen:', err);
+            });
+
+         // Functie om de privéchats op te halen en knoppen te genereren
+         function loadPrivateChats() {
+            fetch('/users')
+                .then(response => response.json())
+                .then(users => {
+                    const privateChatsDiv = document.getElementById('private-chats');
+                    privateChatsDiv.innerHTML = '';  // Maak de lijst leeg
+
+                    users.forEach(user => {
+                        // Maak een knop voor elke gebruiker
+                        const button = document.createElement('button');
+                        button.textContent = `Chat met ${user.username}`;
+                        button.style.margin = '10px';
+                        button.onclick = () => {
+                            window.location.href = `/private_chat.html?user_id=${user.id}`;
+                        };
+
+                        privateChatsDiv.appendChild(button);
                     });
-    
-                    messageInput.value = '';  // Maak het invoerveld leeg
-                } catch (err) {
-                    console.error('Fout bij opslaan van bericht:', err);
-                }
-            }
+                })
+                .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
         }
-    
-        // Luister naar inkomende berichten via Socket.IO
-        socket.on('chatMessage', (data) => {
-            const chatWindow = document.getElementById('chat-window');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
-            chatWindow.appendChild(newMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;  // Scroll automatisch naar beneden
-        });
-    
-        // Versturen bij Enter drukken
-        document.getElementById('message-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+
     </script>
-       
 </body>
 </html>
