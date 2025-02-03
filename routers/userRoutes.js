@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');  // Database connectie
-const { loginUser, registerUser, showHomePage, logoutUser } = require('../controllers/userControllers');
+const { loginUser, registerUser, showHomePage, logoutUser, getUserInfo, updateColor, deleteUser, getUsers } = require('../controllers/userControllers');
 
 // Login route
 router.post('/login', loginUser);
@@ -14,6 +14,7 @@ router.get('/home', showHomePage);
 
 // Logout route
 router.get('/logout', logoutUser);
+
 
 router.get('/user-info', (req, res) => {
     const userId = req.session.userId;  // Neem aan dat je sessies gebruikt om de ingelogde gebruiker te tracken
