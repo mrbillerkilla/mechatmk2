@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { findUserByUsername, createUser, getUserById, deleteUserData, updateUserColo } = require('../models/userModel');
+const { findUserByUsername, createUser, getUserById, deleteUserData, updateUserColor, getAllUsersExcept } = require('../models/userModel');
 
 
 exports.loginUser = async (req, res) => {
