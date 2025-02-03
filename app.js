@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const userRoutes = require('./routers/userRoutes');
 const initializeSockets = require('./sockets/socket');
 const chatRoutes = require('./routers/chatRoutes');
+const blogRoutes = require('./routers/blogroutes');
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(chatRoutes);
 app.use(userRoutes);
-
+app.use(blogRoutes);
 
 
 // Serve de login- en registratiepagina's

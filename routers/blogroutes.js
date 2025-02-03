@@ -1,21 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // Zorg dat je database-verbinding hier correct staat
-const isAuthenticated = require('./middleware/isAuthenticated'); // Onze middleware
 
-router.post('/createBlog', isAuthenticated, (req, res) => {
-    const { title, content } = req.body;
-    const author = req.session.user.username; // Neem de ingelogde gebruiker als auteur
+
+router.post('/createBlog', (req, res) => {
+    console.log('Ontvangen data van de client:');
+    console.log(req.body);  // Laat zien wat er binnenkomt
+
+    const { title, content, author } = req.body;
+
+    if (!author) {
+        console.error('Geen author ontvangen!');
+        return res.status(400).send('Author ontbreekt.');
+    }
 
     const query = 'INSERT INTO blogs (title, content, author) VALUES (?, ?, ?)';
-    db.query(query, [title, content, author], (err, result) => {
+    db.query(query, [title, content, author], (err) => {
         if (err) {
-            console.error(err);
-            return res.status(500).send('Er ging iets mis.');
+            console.error('Databasefout:', err);
+            return res.status(500).send('Er ging iets mis bij het opslaan.');
         }
-        res.redirect('/blogs.html'); // Redirect naar de pagina met alle blogs
+        console.log('Blog succesvol opgeslagen.');
+        res.redirect('/blogs.html');
     });
 });
+
 
 
 router.get('/api/blogs', (req, res) => {

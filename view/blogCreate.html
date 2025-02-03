@@ -4,27 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog aanmaken</title>
-    <link rel="stylesheet" href="create.css">
+    <link rel="stylesheet" href="blogCreate.css">
 </head>
 <body>
     <div class="navbar">
-        <div><a href="index.html">Home</a></div>
-        <div><a href="group_chat.html">Chat</a></div>
+        <div><a href="home.css">Home</a></div>
+        <div><a href="private_chat.html">Chat</a></div>
         <div><a href="group_chat.html">Groepchat</a></div>
         <div><a href="blogs.html">Blogs</a></div>
     </div>
+    <div id="user-info"></div>
 
     <div class="container">
         <h1>Blog aanmaken!!!</h1>
         <form id="blog-form" action="/createBlog" method="POST">
             <label for="title">Titel:</label>
             <input type="text" id="title" name="title" required>
-
+        
             <label for="content">Inhoud:</label>
             <textarea id="content" name="content" rows="5" required></textarea>
-
+        
+            <!-- Verborgen input voor de auteur -->
+            <input type="hidden" id="author" name="author">
+        
             <button type="submit" class="create-button">Create</button>
         </form>
+        
     </div>
+    <script>
+        // Haal de user-info op via de server
+        fetch('/user-info')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Fout: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('user-info').innerHTML = `
+                    <p>Ingelogd als: <strong>${data.username}</strong></p>
+                    <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
+                `;
+
+                // Zet de username automatisch in het verborgen inputveld
+                document.getElementById('author').value = data.username;
+
+                window.currentUserId = data.userId;
+                window.currentUsername = data.username;
+            })
+            .catch(err => {
+                console.error('Fout bij ophalen van gebruikersinformatie:', err);
+                document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
+            });
+
+            document.getElementById('blog-form').addEventListener('submit', function (e) {
+                const title = document.getElementById('title').value;
+                const content = document.getElementById('content').value;
+                const author = document.getElementById('author').value;
+
+                console.log('Wat wordt naar de server gestuurd:');
+                console.log('Titel:', title);
+                console.log('Inhoud:', content);
+                console.log('Author:', author);
+            });
+
+            
+    </script>
 </body>
 </html>

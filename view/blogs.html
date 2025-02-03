@@ -13,7 +13,7 @@
         <div><a href="group_chat.html">Groepchat</a></div>
         <div><a href="blogs.html" class="active">Blogs</a></div>
     </div>
-
+    <div id="user-info"></div>
     <h1 class="title">Blogs</h1>
 
     <div id="blog-container" class="blog-grid">
@@ -24,29 +24,50 @@
         <a href="blogCreate.html">Maak ook een blog!</a>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    // Haal blogs op bij de server
-    fetch('/api/blogs')
-        .then(response => response.json())
-        .then(data => {
-            const blogContainer = document.getElementById('blog-container');
-
-            data.forEach(blog => {
-                // Maak een HTML-structuur voor elke blog
-                const blogElement = document.createElement('div');
-                blogElement.classList.add('blog-post');
-
-                blogElement.innerHTML = `
-                    <h2>${blog.title}</h2>
-                    <p>${blog.content}</p>
-                    <p><em>Made by ${blog.author} op ${new Date(blog.created_at).toLocaleString()}</em></p>
+        // Haal de user-info op via de server
+        fetch('/user-info')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Fout: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('user-info').innerHTML = `
+                    <p>Ingelogd als: <strong>${data.username}</strong></p>
+                    <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
-
-                blogContainer.appendChild(blogElement);
+                window.currentUserId = data.userId;
+                window.currentUsername = data.username;
+            })
+            .catch(err => {
+                console.error('Fout bij ophalen van gebruikersinformatie:', err);
+                document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
-        })
-        .catch(error => console.error('Fout bij het ophalen van blogs:', error));
-});
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/api/blogs')
+                .then(response => response.json())
+                .then(data => {
+                    const blogContainer = document.getElementById('blog-container');
+
+                    data.forEach(blog => {
+                        const blogElement = document.createElement('div');
+                        blogElement.classList.add('blog-post');
+
+                        blogElement.innerHTML = `
+                            <h2>${blog.title}</h2>
+                            <p>${blog.content}</p>
+                            <p>Made by <strong>${blog.author}</strong> op ${new Date(blog.created_at).toLocaleString()}</p>
+                        `;
+
+                        blogContainer.appendChild(blogElement);
+                    });
+                })
+                .catch(err => console.error('Fout bij het ophalen van blogs:', err));
+        });
+
 
     </script>
 </body>

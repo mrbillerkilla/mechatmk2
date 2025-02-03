@@ -9,11 +9,25 @@
 <body>
     <nav class="menu-bar">
         <a href="home.html">Home</a>
-        <a href="chat.html">Chat</a>
-        <a href="groupchat.html">Groepchat</a>
+        <a href="private_chat.html">Chat</a>
+        <a href="group_chat.html">Groepchat</a>
         <a href="blogs.html">Blogs</a>
-        <div class="profile-icon">me</div>
+        
+        <div class="profile-section">
+            <div class="profile-icon" id="profile-icon">me</div>
+            <div class="color-picker">
+                <label for="color-select">Kies je profielkleur:</label>
+                <select id="color-select">
+                    <option value="blue">Blauw</option>
+                    <option value="green">Groen</option>
+                    <option value="skyblue">Baby Blauw</option>
+                    <option value="purple">Paars</option>
+                    <option value="darkgreen">Donkergroen</option>
+                </select>
+            </div>
+        </div>
     </nav>
+    
     <div id="user-info"></div>
 
     <main class="container">
@@ -35,31 +49,70 @@
             <h2>Explore!</h2>
             <div id="group-list"></div>
         </section>
+        <button id="delete-user-btn" style="background-color: red; color: white; padding: 10px; border: none; border-radius: 5px;">
+            Verwijder mijn account
+        </button>
+        
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Haal de user-info op via de server
         fetch('/user-info')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('user-info').innerHTML = `
-                <p>Ingelogd als: <strong>${data.username}</strong></p>
-                <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
-            `;
-            // Zet de userId en username beschikbaar voor berichten
-            window.currentUserId = data.userId;
-            window.currentUsername = data.username;
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('user-info').innerHTML = `
+                    <p>Ingelogd als: <strong>${data.username}</strong></p>
+                    <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
+                `;
+                // Zet de userId en username beschikbaar voor berichten
+                window.currentUserId = data.userId;
+                window.currentUsername = data.username;
+                
+                // Stel de profielkleur in
+                const profileIcon = document.getElementById('profile-icon');
+                profileIcon.classList.add(data.profileColor);
+                 // Selecteer de huidige profielkleur in de dropdown
+                const colorSelect = document.getElementById('color-select');
+                colorSelect.value = data.profileColor;   
 
-            // ✅ Roep hier de functie aan
-            loadPrivateChats();
-        })
-        .catch(err => {
-            console.error('Fout bij ophalen van gebruikersinformatie:', err);
-            document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
-        });
+                // ✅ Voeg een eventlistener toe voor kleurverandering
+                colorSelect.addEventListener('change', function () {
+                    const selectedColor = this.value;
 
-    
+                    // Verwijder vorige kleurklassen
+                    profileIcon.className = 'profile-icon';
+                    profileIcon.classList.add(selectedColor);
+
+                    // Sla de nieuwe kleur op via een POST-verzoek naar de server
+                    fetch('/updateColor', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userId: window.currentUserId,
+                            profileColor: selectedColor
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log('Profielkleur bijgewerkt:', data);
+                    })
+                    .catch(err => console.error('Fout bij updaten profielkleur:', err));
+                });
+
+                // ✅ Roep hier de functie aan
+                loadPrivateChats();
+            })
+            .catch(err => {
+                console.error('Fout bij ophalen van gebruikersinformatie:', err);
+                document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
+            });
+
+        
+
+        
             fetch('/groups')
             .then(response => response.json())
             .then(groups => {
@@ -101,6 +154,26 @@
                     });
                 })
                 .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
+
+                
+                document.getElementById('delete-user-btn').addEventListener('click', function () {
+                if (confirm('Weet je zeker dat je je account en alle gegevens wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
+                    fetch('/deleteUser', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userId: window.currentUserId })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        alert(data);  // Laat een bevestiging zien
+                        window.location.href = '/logout';  // Log de gebruiker uit en stuur ze naar de logoutpagina
+                    })
+                    .catch(err => console.error('Fout bij het verwijderen van de gebruiker:', err));
+                }
+            });
+
         }
 
     </script>
