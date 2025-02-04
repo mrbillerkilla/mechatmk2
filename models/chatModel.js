@@ -1,13 +1,24 @@
 const pool = require('../db');
 
 // Voeg een groepsbericht toe
-exports.insertGroupMessage = async (group_id, sender_id, message, created_at) => {
+exports.insertGroupMessage = async (group_id, sender_id, message, media_url, created_at) => {
     const [result] = await pool.promise().query(
-        'INSERT INTO group_messages (group_id, sender_id, message, created_at) VALUES (?, ?, ?, ?)',
-        [group_id, sender_id, message, created_at]
+        'INSERT INTO group_messages (group_id, sender_id, message, created_at, media_url) VALUES (?, ?, ?, ?, ?)',
+        [group_id, sender_id, message, created_at, media_url || null]
     );
     return result;
 };
+
+
+// Voeg een privébericht toe
+exports.insertPrivateMessage = async (sender_id, receiver_id, message, media_url) => {
+    const [result] = await pool.promise().query(
+        'INSERT INTO private_messages (sender_id, receiver_id, message, media_url) VALUES (?, ?, ?, ?)',
+        [sender_id, receiver_id, message, media_url || null]
+    );
+    return result;
+};
+
 
 // Haal alle groepen op
 exports.fetchGroups = async () => {
@@ -36,14 +47,7 @@ exports.fetchPrivateMessages = async (sender_id, receiver_id) => {
     return rows;
 };
 
-// Voeg een privébericht toe
-exports.insertPrivateMessage = async (sender_id, receiver_id, message) => {
-    const [result] = await pool.promise().query(
-        'INSERT INTO private_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
-        [sender_id, receiver_id, message]
-    );
-    return result;
-};
+
 
 // Voeg een nieuwe groep toe
 exports.insertGroup = async (group_name) => {

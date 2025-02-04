@@ -2,11 +2,11 @@ const { insertGroupMessage, fetchGroups, fetchGroupMessages, fetchPrivateMessage
 
 // Sla een groepsbericht op
 exports.saveGroupMessage = async (req, res) => {
-    const { group_id, sender_id, message } = req.body;
+    const { group_id, sender_id, message, media_url } = req.body;
     const created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     try {
-        const result = await insertGroupMessage(group_id, sender_id, message, created_at);
+        const result = await insertGroupMessage(group_id, sender_id, message, media_url, created_at);
         if (result.affectedRows > 0) {
             res.status(200).send('Bericht succesvol opgeslagen');
         } else {
@@ -17,6 +17,24 @@ exports.saveGroupMessage = async (req, res) => {
         res.status(500).send('Er is een SQL-fout opgetreden.');
     }
 };
+
+// Sla een privébericht op
+exports.savePrivateMessage = async (req, res) => {
+    const { sender_id, receiver_id, message, media_url } = req.body;
+
+    try {
+        const result = await insertPrivateMessage(sender_id, receiver_id, message, media_url);
+        if (result.affectedRows > 0) {
+            res.status(200).send('Bericht opgeslagen');
+        } else {
+            res.status(500).send('Fout bij opslaan in de database');
+        }
+    } catch (err) {
+        console.error('Fout bij opslaan van bericht:', err);
+        res.status(500).send('Er is een fout opgetreden');
+    }
+};
+
 
 // Haal alle groepen op
 exports.getGroups = async (req, res) => {
@@ -55,22 +73,6 @@ exports.getPrivateMessages = async (req, res) => {
     }
 };
 
-// Sla een privébericht op
-exports.savePrivateMessage = async (req, res) => {
-    const { sender_id, receiver_id, message } = req.body;
-
-    try {
-        const result = await insertPrivateMessage(sender_id, receiver_id, message);
-        if (result.affectedRows > 0) {
-            res.status(200).send('Bericht opgeslagen');
-        } else {
-            res.status(500).send('Fout bij opslaan in de database');
-        }
-    } catch (err) {
-        console.error('Fout bij opslaan van bericht:', err);
-        res.status(500).send('Er is een fout opgetreden');
-    }
-};
 
 // Maak een nieuwe groep aan
 exports.createGroup = async (req, res) => {

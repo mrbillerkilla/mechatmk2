@@ -18,9 +18,7 @@
     <div class="container">
         <aside class="group-list-section">
             <h2>Groepen:</h2>
-            <div id="group-list">
-                <!-- Groepen worden hier dynamisch toegevoegd -->
-            </div>
+            <div id="group-list"></div>
         </aside>
 
         <section class="chat-section">
@@ -28,6 +26,7 @@
                 <p><em>Berichten verschijnen hier...</em></p>
             </div>
             <div class="message-input">
+                <input type="file" id="file-input" accept="image/*,video/*">
                 <input type="text" id="message-input" placeholder="Typ een bericht...">
                 <button onclick="sendMessage()">Send</button>
             </div>
@@ -52,24 +51,19 @@
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
-                // Zet de userId en username beschikbaar voor berichten
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
 
-                // Haal oude berichten op voor de geselecteerde groep
                 fetch(`/messages/${groupId}`)
                     .then(res => res.json())
                     .then(messages => {
                         const chatWindow = document.getElementById('chat-window');
-                        chatWindow.innerHTML = '';  // Leeg het venster eerst
+                        chatWindow.innerHTML = '';  // Leeg het venster
 
                         messages.forEach(msg => {
-                            const messageElement = document.createElement('p');
-                            messageElement.textContent = `[${new Date(msg.created_at).toLocaleTimeString()}] User ${msg.sender_id}: ${msg.message}`;
-                            chatWindow.appendChild(messageElement);
+                            appendMessage(msg.sender_id, msg.message, msg.media_url, msg.created_at);
                         });
 
-                        // Scroll automatisch naar beneden
                         chatWindow.scrollTop = chatWindow.scrollHeight;
                     })
                     .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
@@ -79,46 +73,85 @@
                 document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
 
+        // Functie voor het versturen van berichten
         async function sendMessage() {
             const messageInput = document.getElementById('message-input');
-            const message = messageInput.value.trim();
-    
-            if (message !== '') {
+            const fileInput = document.getElementById('file-input');
+            let fileUrl = '';
+
+            // Als er een bestand is geselecteerd, upload het eerst
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('media', fileInput.files[0]);
+
                 try {
-                    // Stuur het bericht naar de server om op te slaan in de database
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    fileUrl = data.url;  // Media-URL ophalen
+                } catch (err) {
+                    console.error('Fout bij uploaden:', err);
+                    return;
+                }
+            }
+
+            const message = messageInput.value.trim();
+
+            if (message !== '' || fileUrl !== '') {
+                try {
                     await fetch('/saveMessage', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            group_id: groupId,  // Dynamisch opgehaalde group_id
+                            group_id: groupId,
                             sender_id: window.currentUserId,
-                            message: message
+                            message: message,
+                            media_url: fileUrl
                         })
                     });
 
-                    // Emit het bericht naar de chat via Socket.IO
                     socket.emit('chatMessage', {
                         sender: window.currentUsername,
-                        message: message
+                        message: message,
+                        media_url: fileUrl
                     });
 
-                    messageInput.value = '';  // Maak het invoerveld leeg
+                    messageInput.value = '';
+                    fileInput.value = '';
                 } catch (err) {
                     console.error('Fout bij opslaan van bericht:', err);
                 }
             }
         }
 
-        // Luister naar inkomende berichten via Socket.IO
+        // Luister naar inkomende berichten
         socket.on('chatMessage', (data) => {
-            const chatWindow = document.getElementById('chat-window');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
-            chatWindow.appendChild(newMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;  // Scroll automatisch naar beneden
+            appendMessage(data.sender, data.message, data.media_url);
         });
+
+        // Berichten toevoegen aan de chat
+        function appendMessage(sender, message, mediaUrl, timestamp = new Date().toLocaleTimeString()) {
+            const chatWindow = document.getElementById('chat-window');
+            const messageElement = document.createElement('p');
+
+            messageElement.innerHTML = `[${timestamp}] ${sender}: ${message || ''}`;
+
+            // Voeg media toe als het aanwezig is
+            if (mediaUrl) {
+                if (mediaUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                    messageElement.innerHTML += `<br><img src="${mediaUrl}" alt="Afbeelding" style="max-width: 200px;">`;
+                } else if (mediaUrl.match(/\.(mp4|webm|ogg)$/i)) {
+                    messageElement.innerHTML += `<br><video controls style="max-width: 300px;">
+                                                    <source src="${mediaUrl}" type="video/mp4">
+                                                </video>`;
+                }
+            }
+
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
 
         // Versturen bij Enter drukken
         document.getElementById('message-input').addEventListener('keypress', (e) => {
@@ -126,17 +159,16 @@
                 sendMessage();
             }
         });
+
         fetch('/groups')
             .then(response => response.json())
             .then(groups => {
                 const groupListDiv = document.getElementById('group-list');
 
                 groups.forEach(group => {
-                    // Maak een knop voor elke groep
                     const button = document.createElement('button');
                     button.textContent = group.group_name;
                     button.onclick = () => {
-                        // Ga naar de groepschat met de juiste group_id
                         window.location.href = `/group_chat.html?group_id=${group.id}`;
                     };
                     groupListDiv.appendChild(button);
