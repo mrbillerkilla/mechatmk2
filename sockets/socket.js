@@ -23,8 +23,9 @@ module.exports = (server) => {
         socket.on('privateMessage', (data) => {
             const roomName = `room_${Math.min(data.sender_id, data.receiver_id)}_${Math.max(data.sender_id, data.receiver_id)}`;
             console.log(`Bericht ontvangen van: ${data.sender_id} en verzenden naar room: ${roomName}`);
-
-            // Verstuur het bericht naar alle gebruikers in de room, inclusief media-URL indien aanwezig
+            socket.join(roomName);
+        
+            // Verstuur het bericht naar de juiste room
             io.to(roomName).emit('privateMessage', {
                 sender: data.sender,
                 message: data.message,

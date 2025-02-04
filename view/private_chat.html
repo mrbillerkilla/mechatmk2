@@ -6,7 +6,6 @@
     <title>Persoonlijke Chat</title>
     <link rel="stylesheet" href="private_chat.css">
 </head>
-<div id="user-info"></div>
 <body>
     <nav class="menu-bar">
         <a href="home.html">Home</a>
@@ -16,6 +15,7 @@
         <div class="profile-icon">me</div>
     </nav>
 
+    <div id="user-info"></div>
     <div class="container">
         <aside class="contacts-section">
             <h2>Mensen:</h2>
@@ -28,6 +28,7 @@
             </div>
             <div class="message-input">
                 <input type="text" id="message-input" placeholder="Typ een bericht...">
+                <input type="file" id="file-input" accept="image/*,video/*">
                 <button onclick="sendMessage()">Send</button>
             </div>
         </section>
@@ -35,16 +36,14 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Functie om de ontvanger (receiver_id) uit de URL te halen
         function getReceiverIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('user_id') || 1;  // Standaard chat met user_id=1 als test
+            return params.get('user_id') || 1;
         }
 
         const receiverId = getReceiverIdFromUrl();
         const socket = io();
 
-        // Haal de user-info op via de server
         fetch('/user-info')
             .then(response => response.json())
             .then(data => {
@@ -55,119 +54,128 @@
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
 
-                // Verbind de gebruiker met de unieke room gebaseerd op beide userIds
                 console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
                 socket.emit('joinPrivateChat', window.currentUserId, receiverId);
-                
-                loadPrivateChats();
 
-            // Verbind de gebruiker met zijn unieke room
-            socket.emit('joinPrivateChat', window.currentUserId);
-                    // Haal oude berichten op
-                    fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
-                        .then(res => res.json())
-                        .then(messages => {
-                            console.log('Oude berichten:', messages); 
-                            const chatWindow = document.getElementById('chat-window');
-                            chatWindow.innerHTML = '';
+                fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
+                    .then(res => res.json())
+                    .then(messages => {
+                        const chatWindow = document.getElementById('chat-window');
+                        chatWindow.innerHTML = '';
 
-                            messages.forEach(msg => {
-                                const messageElement = document.createElement('p');
-                                const sender = msg.sender_id === window.currentUserId ? 'Jij' : `User ${msg.sender_id}`;
-                                messageElement.textContent = `[${new Date(msg.created_at).toLocaleTimeString()}] ${sender}: ${msg.message}`;
-                                chatWindow.appendChild(messageElement);
-                            });
+                        messages.forEach(msg => {
+                            appendMessage(msg.sender_id, msg.message, msg.media_url, msg.created_at);
+                        });
 
-                            chatWindow.scrollTop = chatWindow.scrollHeight;
-                        })
-                        .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
+                    })
+                    .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
             })
             .catch(err => {
                 console.error('Fout bij ophalen van gebruikersinformatie:', err);
                 document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
 
-            async function sendMessage() {
-                const messageInput = document.getElementById('message-input');
-                const message = messageInput.value.trim();
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const fileInput = document.getElementById('file-input');
+            let fileUrl = '';
 
-                if (message !== '') {
-                    try {
-                        await fetch('/savePrivateMessage', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                sender_id: window.currentUserId,
-                                receiver_id: receiverId,
-                                message: message
-                            })
-                        });
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('media', fileInput.files[0]);
 
-                        console.log('Verzend bericht naar de server via Socket.IO:', {
-                            sender: window.currentUsername,
-                            sender_id: window.currentUserId,
-                            message: message,
-                            receiver_id: receiverId
-                        });
-
-                        socket.emit('privateMessage', {
-                            sender: window.currentUsername,
-                            sender_id: window.currentUserId,
-                            message: message,
-                            receiver_id: receiverId
-                        });
-
-                        messageInput.value = '';  // Maak het invoerveld leeg
-                    } catch (err) {
-                        console.error('Fout bij opslaan van bericht:', err);
-                    }
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    fileUrl = data.url;
+                } catch (err) {
+                    console.error('Fout bij uploaden:', err);
+                    return;
                 }
             }
 
+            const message = messageInput.value.trim();
 
-        // Luister naar inkomende berichten
+            if (message !== '' || fileUrl !== '') {
+                try {
+                    await fetch('/savePrivateMessage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sender_id: window.currentUserId,
+                            receiver_id: receiverId,
+                            message: message,
+                            media_url: fileUrl
+                        })
+                    });
+
+                    socket.emit('privateMessage', {
+                        sender: window.currentUsername,
+                        sender_id: window.currentUserId,
+                        message: message,
+                        media_url: fileUrl,
+                        receiver_id: receiverId
+                    });
+
+                    messageInput.value = '';
+                    fileInput.value = '';
+                } catch (err) {
+                    console.error('Fout bij opslaan van bericht:', err);
+                }
+            }
+        }
+
         socket.on('privateMessage', (data) => {
-            console.log('Nieuw bericht ontvangen via Socket.IO:', data);
-
-            const chatWindow = document.getElementById('chat-window');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = `[${new Date().toLocaleTimeString()}] ${data.sender}: ${data.message}`;
-            chatWindow.appendChild(newMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
+            appendMessage(data.sender, data.message, data.media_url);
         });
 
-        // Versturen bij Enter drukken
+        function appendMessage(sender, message, mediaUrl, timestamp = new Date().toLocaleTimeString()) {
+            const chatWindow = document.getElementById('chat-window');
+            const messageElement = document.createElement('p');
+
+            messageElement.innerHTML = `[${timestamp}] ${sender}: ${message || ''}`;
+
+            if (mediaUrl) {
+                if (mediaUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                    messageElement.innerHTML += `<br><img src="${mediaUrl}" alt="Afbeelding" style="max-width: 200px;">`;
+                } else if (mediaUrl.match(/\.(mp4|webm|ogg)$/i)) {
+                    messageElement.innerHTML += `<br><video controls style="max-width: 300px;">
+                                                    <source src="${mediaUrl}" type="video/mp4">
+                                                </video>`;
+                }
+            }
+
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
         document.getElementById('message-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
-        });  
+        });
 
-        function loadPrivateChats() {
-            fetch('/users')
-                .then(response => response.json())
-                .then(users => {
-                    console.log('Gebruikerslijst ontvangen:', users);  // Debugging
+        fetch('/users')
+            .then(response => response.json())
+            .then(users => {
+                const privateChatsDiv = document.getElementById('private-chats');
+                privateChatsDiv.innerHTML = '';
 
-                    const privateChatsDiv = document.getElementById('private-chats');
-                    privateChatsDiv.innerHTML = '';  // Maak de lijst leeg
-
-                    users.forEach(user => {
-                        const button = document.createElement('button');
-                        button.textContent = `${user.username}`;
-                        button.style.margin = '10px';
-                        button.onclick = () => {
-                            window.location.href = `/private_chat.html?user_id=${user.id}`;
-                        };
-
-                        privateChatsDiv.appendChild(button);
-                    });
-                })
-                .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
-        }
-
+                users.forEach(user => {
+                    const button = document.createElement('button');
+                    button.textContent = `${user.username}`;
+                    button.style.margin = '10px';
+                    button.onclick = () => {
+                        window.location.href = `/private_chat.html?user_id=${user.id}`;
+                    };
+                    privateChatsDiv.appendChild(button);
+                });
+            })
+            .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
     </script>
 </body>
 </html>
