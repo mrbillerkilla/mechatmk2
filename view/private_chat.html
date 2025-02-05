@@ -44,9 +44,12 @@
         const receiverId = getReceiverIdFromUrl();
         const socket = io();
 
+        console.log('Receiver ID:', receiverId);
+
         fetch('/user-info')
             .then(response => response.json())
             .then(data => {
+                console.log('Gebruikersinformatie ontvangen:', data);
                 document.getElementById('user-info').innerHTML = `
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
@@ -60,6 +63,7 @@
                 fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
                     .then(res => res.json())
                     .then(messages => {
+                        console.log('Oude berichten ontvangen:', messages);
                         const chatWindow = document.getElementById('chat-window');
                         chatWindow.innerHTML = '';
 
@@ -77,11 +81,13 @@
             });
 
         async function sendMessage() {
+            console.log('Send message gestart');
             const messageInput = document.getElementById('message-input');
             const fileInput = document.getElementById('file-input');
             let fileUrl = '';
 
             if (fileInput.files.length > 0) {
+                console.log('Bestand geselecteerd voor upload:', fileInput.files[0].name);
                 const formData = new FormData();
                 formData.append('media', fileInput.files[0]);
 
@@ -92,6 +98,7 @@
                     });
                     const data = await response.json();
                     fileUrl = data.url;
+                    console.log('Bestand geüpload naar:', fileUrl);
                 } catch (err) {
                     console.error('Fout bij uploaden:', err);
                     return;
@@ -101,6 +108,7 @@
             const message = messageInput.value.trim();
 
             if (message !== '' || fileUrl !== '') {
+                console.log('Verzend bericht:', { message, fileUrl });
                 try {
                     await fetch('/savePrivateMessage', {
                         method: 'POST',
@@ -113,6 +121,7 @@
                         })
                     });
 
+                    console.log('Bericht opgeslagen in de database. Versturen via Socket.IO...');
                     socket.emit('privateMessage', {
                         sender: window.currentUsername,
                         sender_id: window.currentUserId,
@@ -126,14 +135,38 @@
                 } catch (err) {
                     console.error('Fout bij opslaan van bericht:', err);
                 }
+            } else {
+                console.log('Geen bericht of bestand om te verzenden.');
             }
         }
 
+        // socket.on('privateMessage', (data) => {
+        //     console.log('Nieuw bericht ontvangen via Socket.IO:', data);
+        //     appendMessage(data.sender, data.message, data.media_url);
+        // });
+
+        // socket.on('privateMessage', (data) => {
+        //     const roomName = `room_${Math.min(data.sender_id, data.receiver_id)}_${Math.max(data.sender_id, data.receiver_id)}`;
+        //     console.log(`Bericht ontvangen van: ${data.sender_id} en verzenden naar room: ${roomName}`);
+            
+        //     io.to(roomName).emit('privateMessage', {
+        //         sender: data.sender,
+        //         message: data.message,
+        //         media_url: data.media_url || null,
+        //         timestamp: new Date().toLocaleTimeString()
+        //     });
+        // });
+
         socket.on('privateMessage', (data) => {
+            console.log('Nieuw bericht ontvangen via Socket.IO:', data);
             appendMessage(data.sender, data.message, data.media_url);
         });
 
+        console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
+        socket.emit('joinPrivateChat', window.currentUserId, receiverId);
+
         function appendMessage(sender, message, mediaUrl, timestamp = new Date().toLocaleTimeString()) {
+            console.log('Voeg bericht toe aan chat:', { sender, message, mediaUrl });
             const chatWindow = document.getElementById('chat-window');
             const messageElement = document.createElement('p');
 
@@ -155,6 +188,7 @@
 
         document.getElementById('message-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
+                console.log('Enter-toets gedetecteerd, verzenden van bericht...');
                 sendMessage();
             }
         });
@@ -162,6 +196,7 @@
         fetch('/users')
             .then(response => response.json())
             .then(users => {
+                console.log('Gebruikerslijst ontvangen:', users);
                 const privateChatsDiv = document.getElementById('private-chats');
                 privateChatsDiv.innerHTML = '';
 
@@ -170,6 +205,7 @@
                     button.textContent = `${user.username}`;
                     button.style.margin = '10px';
                     button.onclick = () => {
+                        console.log(`Navigeren naar chat met gebruiker: ${user.username}`);
                         window.location.href = `/private_chat.html?user_id=${user.id}`;
                     };
                     privateChatsDiv.appendChild(button);

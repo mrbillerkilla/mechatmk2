@@ -26,6 +26,7 @@ exports.fetchGroups = async () => {
     return rows;
 };
 
+
 // Haal groepsberichten op
 exports.fetchGroupMessages = async (groupId) => {
     const [rows] = await pool.promise().query(
@@ -34,6 +35,7 @@ exports.fetchGroupMessages = async (groupId) => {
     );
     return rows;
 };
+
 
 // Haal privéberichten op
 exports.fetchPrivateMessages = async (sender_id, receiver_id) => {
