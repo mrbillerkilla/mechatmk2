@@ -1,4 +1,5 @@
-const { insertBlog, fetchBlogs } = require('../models/blogModel');
+const { insertBlog, 
+        fetchBlogs } = require('../models/blogModel');
 
 // Maak een nieuwe blog aan
 exports.createBlog = async (req, res) => {

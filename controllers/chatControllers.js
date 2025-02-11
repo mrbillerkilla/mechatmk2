@@ -1,4 +1,9 @@
-const { insertGroupMessage, fetchGroups, fetchGroupMessages, fetchPrivateMessages, insertPrivateMessage, insertGroup} = require('../models/chatModel');
+const { insertGroupMessage, 
+        fetchGroups, 
+        fetchGroupMessages, 
+        fetchPrivateMessages, 
+        insertPrivateMessage, 
+        insertGroup} = require('../models/chatModel');
 
 // Sla een groepsbericht op
 exports.saveGroupMessage = async (req, res) => {

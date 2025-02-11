@@ -1,17 +1,13 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-
-
 const router = express.Router();
-const {
-    saveGroupMessage,
-    getGroups,
-    getGroupMessages,
-    getPrivateMessages,
-    savePrivateMessage,
-    createGroup
-} = require('../controllers/chatControllers');
+
+const { saveGroupMessage, 
+        getGroups, 
+        getGroupMessages, 
+        getPrivateMessages, 
+        savePrivateMessage, 
+        createGroup} = require('../controllers/chatControllers');
 
 // Routes
 router.post('/saveMessage', saveGroupMessage);
