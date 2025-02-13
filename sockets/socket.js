@@ -1,9 +1,12 @@
+// Exporteer een functie die een nieuwe Socket.IO-server maakt en luistert naar inkomende verbindingen
 const { Server } = require('socket.io');
 
+// Exporteer een functie die een nieuwe Socket.IO-server maakt en luistert naar inkomende verbindingen
 module.exports = (server) => {
+    // Maak een nieuwe Socket.IO-server
     const io = new Server(server);
-
     io.on('connection', (socket) => {
+        // console log om te zien of de gebruiker verbonden is
         console.log('Nieuwe gebruiker verbonden:', socket.id);
 
         // Luister naar nieuwe groepschatberichten met media
@@ -28,9 +31,11 @@ module.exports = (server) => {
 
         // Luister naar privéberichten
         socket.on('privateMessage', (data) => {
+            // Bepaal de roomnaam op basis van de ID's van de verzender en ontvanger zodat de berichten privé blijven tussen die twee gebruikers
             const roomName = `room_${Math.min(data.sender_id, data.receiver_id)}_${Math.max(data.sender_id, data.receiver_id)}`;
+            // console log de berichten die worden ontvangen en verzonden
             console.log(`Bericht ontvangen van: ${data.sender_id} en verzenden naar room: ${roomName}`);
-            
+            // versturen van het privébericht naar de juiste room
             io.to(roomName).emit('privateMessage', {
                 sender: data.sender,
                 message: data.message,

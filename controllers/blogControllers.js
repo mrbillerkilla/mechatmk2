@@ -1,3 +1,4 @@
+// models importeren voor de blogs 
 const { insertBlog, 
         fetchBlogs } = require('../models/blogModel');
 

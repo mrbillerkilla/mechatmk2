@@ -121,14 +121,3 @@ exports.getUsers = async (req, res) => {
         res.status(500).send('Er ging iets mis.');
     }
 };
-
-// module.exports = {
-//     loginUser,
-//     registerUser,
-//     showHomePage,
-//     logoutUser,
-//     getUserInfo,
-//     updateColor,
-//     deleteUser,
-//     getUsers
-// };

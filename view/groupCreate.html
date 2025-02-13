@@ -44,20 +44,6 @@
         .nav-links a.active {
             color: limegreen;
         }
-        .profile {
-            background-color: white;
-            padding: 5px 10px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-        }
-        .profile span {
-            background-color: #0078FF;
-            color: white;
-            border-radius: 50%;
-            padding: 5px 10px;
-            font-weight: bold;
-        }
         .container {
             background-color: white;
             padding: 40px;
@@ -67,6 +53,14 @@
             text-align: left;
             margin-top: 80px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .user-info {
+            margin: 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
         }
         h2 {
             margin-bottom: 20px;
@@ -97,27 +91,20 @@
             cursor: pointer;
             margin-left: 10px;
         }
-        @media (max-width: 600px) {
-            .container {
-                width: 90%;
-            }
-            .nav-links {
-                gap: 10px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="navbar">
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#">Chat</a>
-            <a href="#" class="active">Groepchat</a>
-        </div>
-        <div class="profile">
-            <span>Loading...</span> 
+            <a href="home.html">Home</a>
+            <a href="private_chat.html">Chat</a>
+            <a href="group_chat.html">groepchat</a>
+            <a href="group_chat.html" class="active">create</a>
         </div>
     </div>
+
+    <div class="user-info">Loading user info...</div>
+
     <div class="container">
         <h2><strong>groepchat </strong></h2>
         <label for="group-name">Name:</label>
@@ -129,32 +116,31 @@
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        const createButton = document.getElementById('create-button');
-        const groupNameInput = document.getElementById('group-name');
-        const userInfoDiv = document.querySelector('.profile span'); // Waar de gebruikersinfo wordt getoond
+        const userInfoDiv = document.querySelector('.user-info');
 
-        let userId = null;
-        let username = "Gast"; // Standaard als er geen user-info is
-
-        // Haal de ingelogde gebruiker op
         try {
             const userResponse = await fetch('/user-info');
             if (!userResponse.ok) throw new Error(`HTTP error! status: ${userResponse.status}`);
 
             const user = await userResponse.json();
-            userId = user.userId; // Haal de user ID op
-            username = user.username;
+            window.currentUserId = user.userId;
+            window.currentUsername = user.username;
 
-            // Toon de gebruikersnaam en ID in de navbar
-            userInfoDiv.textContent = `ID: ${userId}, ${username}`;
+            if (userInfoDiv) {
+                userInfoDiv.textContent = `ID: ${user.userId}, ${user.username}`;
+            }
         } catch (err) {
             console.error('Fout bij ophalen van gebruikersinformatie:', err);
-            userInfoDiv.textContent = "Niet ingelogd";
+            if (userInfoDiv) {
+                userInfoDiv.textContent = "Niet ingelogd";
+            }
         }
 
-        // Voeg event listener toe aan de knop
+        // Event listener voor het maken van een groep
+        const createButton = document.getElementById('create-button');
         createButton.addEventListener('click', async () => {
-            const groupName = groupNameInput.value.trim(); // Haal de naam van de groep op
+            const groupNameInput = document.getElementById('group-name');
+            const groupName = groupNameInput.value.trim();
             if (!groupName) {
                 alert('Voer een groepsnaam in!');
                 return;
@@ -166,7 +152,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ group_name: groupName }) // Verstuur de groepsnaam naar de backend
+                    body: JSON.stringify({
+                        group_name: groupName,
+                        created_by: window.currentUserId
+                    })
                 });
 
                 if (!response.ok) {
@@ -175,8 +164,6 @@
 
                 const data = await response.json();
                 alert(`Groep '${groupName}' succesvol aangemaakt!`);
-
-                // Redirect naar groepschatpagina
                 window.location.href = `/group_chat.html?group_id=${data.group_id}`;
             } catch (err) {
                 console.error('Fout bij het aanmaken van de groep:', err);
