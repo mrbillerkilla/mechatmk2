@@ -1,5 +1,7 @@
 const express = require('express');
+// Router voor de blog
 const router = express.Router();
+// Importeer de functies uit de controllers
 const { createBlog, 
         getBlogs } = require('../controllers/blogControllers');
 

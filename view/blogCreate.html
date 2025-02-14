@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="blogCreate.css">
 </head>
 <body>
+    <!-- navbar -->
     <div class="navbar">
         <div><a href="home.css">Home</a></div>
         <div><a href="private_chat.html">Chat</a></div>
         <div><a href="group_chat.html">Groepchat</a></div>
         <div><a href="blogs.html">Blogs</a></div>
     </div>
+    <!-- hier wordt user info weergegeven -->
     <div id="user-info"></div>
 
     <div class="container">
@@ -34,12 +36,16 @@
     <script>
         // Haal de user-info op via de server
         fetch('/user-info')
+            // Als de fetch succesvol is, dan wordt de response doorgegeven aan de volgende .then()
             .then(response => {
+                // als de response niet ok is, dan wordt er een error gegooid
                 if (!response.ok) {
                     throw new Error(`Fout: ${response.status} - ${response.statusText}`);
                 }
+                // als de response wel ok is, dan wordt de response omgezet naar JSON en doorgegeven aan de volgende .then()
                 return response.json();
             })
+            // Als de response is omgezet naar JSON, dan wordt de data doorgegeven aan de volgende .then()
             .then(data => {
                 document.getElementById('user-info').innerHTML = `
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
@@ -48,15 +54,17 @@
 
                 // Zet de username automatisch in het verborgen inputveld
                 document.getElementById('author').value = data.username;
-
+                // Sla de gebruikersinformatie op in globale variabelen
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
             })
             .catch(err => {
+                // Als er een fout optreedt bij het ophalen van de gebruikersinformatie, 
+                // dan wordt de foutmelding in de console gelogd en wordt er een melding getoond aan de gebruiker
                 console.error('Fout bij ophalen van gebruikersinformatie:', err);
                 document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
-
+            // Voeg een eventlistener toe aan het formulier
             document.getElementById('blog-form').addEventListener('submit', function (e) {
                 const title = document.getElementById('title').value;
                 const content = document.getElementById('content').value;

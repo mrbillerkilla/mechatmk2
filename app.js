@@ -87,7 +87,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'index.html'));
 });
 
-
+// files vanuit de map view beschikbaar maken
 app.use(express.static(path.join(__dirname, 'view')));
 
 

@@ -59,8 +59,10 @@
     <script>
         // Haal de user-info op via de server
         fetch('/user-info')
+            // Als de fetch succesvol is, dan wordt de response doorgegeven aan de volgende .then()
             .then(response => response.json())
             .then(data => {
+                // response in een div zetten
                 document.getElementById('user-info').innerHTML = `
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
@@ -76,7 +78,7 @@
                 const colorSelect = document.getElementById('color-select');
                 colorSelect.value = data.profileColor;   
 
-                // ✅ Voeg een eventlistener toe voor kleurverandering
+                // Voeg een eventlistener toe voor kleurverandering
                 colorSelect.addEventListener('change', function () {
                     const selectedColor = this.value;
 
@@ -90,6 +92,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
+                        // Stuur de userId en de nieuwe kleur mee in de body van het verzoek
                         body: JSON.stringify({
                             userId: window.currentUserId,
                             profileColor: selectedColor
@@ -102,7 +105,7 @@
                     .catch(err => console.error('Fout bij updaten profielkleur:', err));
                 });
 
-                // ✅ Roep hier de functie aan
+                
                 loadPrivateChats();
             })
             .catch(err => {
@@ -112,10 +115,11 @@
 
         
 
-        
+            // Functie om de groepen op te halen en knoppen te genereren    
             fetch('/groups')
             .then(response => response.json())
             .then(groups => {
+                // Selecteer de div waar de groepen in moeten komen
                 const groupListDiv = document.getElementById('group-list');
 
                 groups.forEach(group => {
@@ -155,7 +159,7 @@
                 })
                 .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
 
-                
+                // Voeg een eventlistener toe aan de knop om de gebruiker te verwijderen
                 document.getElementById('delete-user-btn').addEventListener('click', function () {
                 if (confirm('Weet je zeker dat je je account en alle gegevens wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
                     fetch('/deleteUser', {

@@ -36,37 +36,47 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Haal de user-info op via de server
         function getReceiverIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
+            // Als er geen user_id in de URL staat, dan wordt er 1 gereturned
             return params.get('user_id') || 1;
         }
-
+        // Haal de user-info op via de server
         const receiverId = getReceiverIdFromUrl();
+        // Maak een nieuwe socket.io verbinding
         const socket = io();
-
+        // Log de receiverId in de console
         console.log('Receiver ID:', receiverId);
-
+        // Haal de user-info op via de server
         fetch('/user-info')
             .then(response => response.json())
             .then(data => {
+                // user-info wordt in de console gelogd
                 console.log('Gebruikersinformatie ontvangen:', data);
+                // user-info wordt in de HTML weergegeven
                 document.getElementById('user-info').innerHTML = `
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
+                
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
-
                 console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
+                // Verbind gebruiker met room voor chat met ontvanger
+        
                 socket.emit('joinPrivateChat', window.currentUserId, receiverId);
-
+                // Haal de oude berichten op via de server op basis van de receiverId
                 fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
-                    .then(res => res.json())
+                    // Als de fetch succesvol is, dan wordt de response doorgegeven aan de volgende .then()
+                    // Als de response is omgezet naar JSON, dan wordt de data doorgegeven aan de volgende .then()
+                    .then(res => res.json())                
                     .then(messages => {
                         console.log('Oude berichten ontvangen:', messages);
+                        // Maak stuur de oude berichten naar de chat window
                         const chatWindow = document.getElementById('chat-window');
                         chatWindow.innerHTML = '';
-
+                        // Loop door de oude berichten en voeg ze toe aan de chat window
                         messages.forEach(msg => {
                             appendMessage(msg.sender_id, msg.message, msg.media_url, msg.created_at);
                         });
@@ -139,23 +149,6 @@
                 console.log('Geen bericht of bestand om te verzenden.');
             }
         }
-
-        // socket.on('privateMessage', (data) => {
-        //     console.log('Nieuw bericht ontvangen via Socket.IO:', data);
-        //     appendMessage(data.sender, data.message, data.media_url);
-        // });
-
-        // socket.on('privateMessage', (data) => {
-        //     const roomName = `room_${Math.min(data.sender_id, data.receiver_id)}_${Math.max(data.sender_id, data.receiver_id)}`;
-        //     console.log(`Bericht ontvangen van: ${data.sender_id} en verzenden naar room: ${roomName}`);
-            
-        //     io.to(roomName).emit('privateMessage', {
-        //         sender: data.sender,
-        //         message: data.message,
-        //         media_url: data.media_url || null,
-        //         timestamp: new Date().toLocaleTimeString()
-        //     });
-        // });
 
         socket.on('privateMessage', (data) => {
             console.log('Nieuw bericht ontvangen via Socket.IO:', data);

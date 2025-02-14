@@ -1,5 +1,5 @@
 const express = require('express');
-
+// Router library importeren van express
 const router = express.Router();
 
 const { loginUser, 

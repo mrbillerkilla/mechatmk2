@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+// Importeer de functies uit de models
 const { findUserByUsername, 
         createUser, 
         getUserById, 
@@ -6,21 +7,21 @@ const { findUserByUsername,
         updateUserColor, 
         getAllUsersExcept } = require('../models/userModel');
 
-
+// Inloggen van een gebruiker
 exports.loginUser = async (req, res) => {
     const { username, password } = req.body;
-
+    // Haal de gebruiker op uit de database
     try {
         const user = await findUserByUsername(username);
         if (!user) {
             return res.status(401).send('Gebruiker bestaat niet.');
         }
-
+        // Controleer of het wachtwoord overeenkomt met de hash in de database
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).send('Ongeldig wachtwoord.');
         }
-
+        // Sla de gebruikersgegevens op in de sessie
         req.session.userId = user.id;
         req.session.username = user.username;
         res.redirect('/home.html');  // Verwijs naar de juiste route
@@ -30,7 +31,7 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-
+// Regristeren voor een nieuwe gebruiker
 exports.registerUser = async (req, res) => {
     const { username, password } = req.body;
 
