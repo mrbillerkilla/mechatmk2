@@ -59,12 +59,13 @@
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
-                
+                // user-info wordt een globale variabele
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
+                // Log de receiverId in de console
                 console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
+                
                 // Verbind gebruiker met room voor chat met ontvanger
-        
                 socket.emit('joinPrivateChat', window.currentUserId, receiverId);
                 // Haal de oude berichten op via de server op basis van de receiverId
                 fetch(`/private-messages/${window.currentUserId}/${receiverId}`)
@@ -80,7 +81,7 @@
                         messages.forEach(msg => {
                             appendMessage(msg.sender_id, msg.message, msg.media_url, msg.created_at);
                         });
-
+                        // Scroll naar beneden
                         chatWindow.scrollTop = chatWindow.scrollHeight;
                     })
                     .catch(err => console.error('Fout bij ophalen van oude berichten:', err));
@@ -89,16 +90,20 @@
                 console.error('Fout bij ophalen van gebruikersinformatie:', err);
                 document.getElementById('user-info').innerHTML = '<p>Niet ingelogd</p>';
             });
-
+        // Functie voor het versturen van berichten
         async function sendMessage() {
             console.log('Send message gestart');
+            // Haal de message-input en file-input op
             const messageInput = document.getElementById('message-input');
             const fileInput = document.getElementById('file-input');
+            // variable voor de fileUrl die wordt opgehaald in een string
             let fileUrl = '';
-
+            // Selecteer het bestand dat is geüpload
             if (fileInput.files.length > 0) {
                 console.log('Bestand geselecteerd voor upload:', fileInput.files[0].name);
+                // Maak een FormData object aan en voeg het bestand toe
                 const formData = new FormData();
+                // Voeg het bestand toe aan de formData
                 formData.append('media', fileInput.files[0]);
 
                 try {

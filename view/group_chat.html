@@ -45,12 +45,15 @@
 
         // Haal de user-info op via de server
         fetch('/user-info')
+            // Zet de gebruikersinformatie in een json-object
             .then(response => response.json())
             .then(data => {
+                // json object in de html zetten
                 document.getElementById('user-info').innerHTML = `
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
                     <p>Gebruikers-ID: <strong>${data.userId}</strong></p>
                 `;
+                
                 window.currentUserId = data.userId;
                 window.currentUsername = data.username;
 

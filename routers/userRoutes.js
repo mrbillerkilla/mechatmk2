@@ -4,7 +4,6 @@ const router = express.Router();
 
 const { loginUser, 
         registerUser, 
-        showHomePage, 
         getUserInfo, 
         updateColor, 
         deleteUser, 
@@ -17,7 +16,7 @@ router.post('/login', loginUser);
 router.post('/register', registerUser);
 
 // Homepage route
-router.get('/home', showHomePage);
+// router.get('/home', showHomePage);
 
 router.get('/user-info', getUserInfo);
 

@@ -55,12 +55,12 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-exports.showHomePage = (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/');  // Terug naar loginpagina als niet ingelogd
-    }
-    res.send(`<h1>Welkom ${req.session.username}</h1><a href="/logout">Uitloggen</a>`);
-};
+// exports.showHomePage = (req, res) => {
+//     if (!req.session.userId) {
+//         return res.redirect('/');  // Terug naar loginpagina als niet ingelogd
+//     }
+//     res.send(`<h1>Welkom ${req.session.username}</h1><a href="/logout">Uitloggen</a>`);
+// };
 
 // Haal de gebruikersinfo op
 exports.getUserInfo = async (req, res) => {

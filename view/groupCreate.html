@@ -119,18 +119,22 @@
         const userInfoDiv = document.querySelector('.user-info');
 
         try {
+            // Ophalen van gebruikersinformatie van de server
             const userResponse = await fetch('/user-info');
             if (!userResponse.ok) throw new Error(`HTTP error! status: ${userResponse.status}`);
 
+            // Omzetten van de response naar JSON
             const user = await userResponse.json();
             window.currentUserId = user.userId;
             window.currentUsername = user.username;
 
+            // Weergeven van gebruikersinformatie in de user-info div
             if (userInfoDiv) {
                 userInfoDiv.textContent = `ID: ${user.userId}, ${user.username}`;
             }
         } catch (err) {
             console.error('Fout bij ophalen van gebruikersinformatie:', err);
+            // Weergeven van een foutmelding als de gebruikersinformatie niet kan worden opgehaald
             if (userInfoDiv) {
                 userInfoDiv.textContent = "Niet ingelogd";
             }
@@ -147,6 +151,7 @@
             }
 
             try {
+                // Verzenden van een POST-verzoek naar de server om een nieuwe groep aan te maken
                 const response = await fetch('/createGroups', {
                     method: 'POST',
                     headers: {
@@ -162,8 +167,10 @@
                     throw new Error(`Fout bij het aanmaken van de groep: ${response.statusText}`);
                 }
 
+                // Omzetten van de response naar JSON
                 const data = await response.json();
                 alert(`Groep '${groupName}' succesvol aangemaakt!`);
+                // Doorverwijzen naar de groepschatpagina met de nieuwe groep ID
                 window.location.href = `/group_chat.html?group_id=${data.group_id}`;
             } catch (err) {
                 console.error('Fout bij het aanmaken van de groep:', err);

@@ -15,7 +15,6 @@
     </div>
     <div id="user-info"></div>
     <h1 class="title">Blogs</h1>
-
     <div id="blog-container" class="blog-grid">
         <!-- Dynamisch gegenereerde blogs komen hier -->
     </div>
@@ -26,12 +25,14 @@
     <script>
         // Haal de user-info op via de server
         fetch('/user-info')
+            // Zet de gebruikersinformatie in een json-object
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Fout: ${response.status} - ${response.statusText}`);
                 }
                 return response.json();
             })
+            // Zet de gebruikersinformatie in een json-object en wordt in de html gezet
             .then(data => {
                 document.getElementById('user-info').innerHTML = `
                     <p>Ingelogd als: <strong>${data.username}</strong></p>
@@ -47,7 +48,9 @@
 
 
         document.addEventListener("DOMContentLoaded", function () {
+            // Haal de blogs op via de route /api/blogs en zet ze in de blog-container
             fetch('/api/blogs')
+                // Zet de blogs in een json-object
                 .then(response => response.json())
                 .then(data => {
                     const blogContainer = document.getElementById('blog-container');
