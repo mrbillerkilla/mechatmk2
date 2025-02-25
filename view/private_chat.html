@@ -76,6 +76,7 @@
                         console.log('Oude berichten ontvangen:', messages);
                         // Maak stuur de oude berichten naar de chat window
                         const chatWindow = document.getElementById('chat-window');
+                        // Chat window wordt leeg gemaakt
                         chatWindow.innerHTML = '';
                         // Loop door de oude berichten en voeg ze toe aan de chat window
                         messages.forEach(msg => {
@@ -107,11 +108,14 @@
                 formData.append('media', fileInput.files[0]);
 
                 try {
+                    // Form data object aanmaken en het folder toevoegen
                     const response = await fetch('/upload', {
-                        method: 'POST',
-                        body: formData
+                        method: 'POST', // Het methode gebruiken om het in de folder te zetten
+                        body: formData // Stuur het FormData object als de body van het verzoek
                     });
+                    // De response voor de foto/video wordt omgezet naar JSON
                     const data = await response.json();
+                    // file url 
                     fileUrl = data.url;
                     console.log('Bestand geüpload naar:', fileUrl);
                 } catch (err) {
@@ -119,15 +123,19 @@
                     return;
                 }
             }
-
+            // De message wordt opgehaald en getrimd voor de whitespaces
             const message = messageInput.value.trim();
-
+            // Als de message niet leeg is of de fileUrl niet leeg is, dan wordt het bericht verzonden
             if (message !== '' || fileUrl !== '') {
                 console.log('Verzend bericht:', { message, fileUrl });
                 try {
+                    // De message wordt opgeslagen in de database vanuit de server
                     await fetch('/savePrivateMessage', {
+                        // Methode wordt uitgekozen
                         method: 'POST',
+                        // Content-Type wordt aangegeven als JSON
                         headers: { 'Content-Type': 'application/json' },
+                        // Object wordt omgezet naar een string
                         body: JSON.stringify({
                             sender_id: window.currentUserId,
                             receiver_id: receiverId,
@@ -137,6 +145,7 @@
                     });
 
                     console.log('Bericht opgeslagen in de database. Versturen via Socket.IO...');
+                    // Bericht wordt verzonden via Socket.IO
                     socket.emit('privateMessage', {
                         sender: window.currentUsername,
                         sender_id: window.currentUserId,
@@ -154,62 +163,93 @@
                 console.log('Geen bericht of bestand om te verzenden.');
             }
         }
-
+        // Als er een privateMessage wordt ontvangen, dan wordt de data doorgegeven aan de volgende functie
         socket.on('privateMessage', (data) => {
             console.log('Nieuw bericht ontvangen via Socket.IO:', data);
             appendMessage(data.sender, data.message, data.media_url);
         });
 
         console.log(`Verbind gebruiker met room voor chat met ontvanger ${receiverId}`);
+        //
         socket.emit('joinPrivateChat', window.currentUserId, receiverId);
 
         function appendMessage(sender, message, mediaUrl, timestamp = new Date().toLocaleTimeString()) {
+            // Log een bericht naar de console met de details van het bericht
             console.log('Voeg bericht toe aan chat:', { sender, message, mediaUrl });
+
+            // Selecteer het chat window element waar de berichten worden weergegeven
             const chatWindow = document.getElementById('chat-window');
+
+            // Maak een nieuw <p> element aan voor het bericht
             const messageElement = document.createElement('p');
 
+            // Stel de innerHTML van het <p> element in met de tijd, afzender en berichtinhoud
             messageElement.innerHTML = `[${timestamp}] ${sender}: ${message || ''}`;
 
+            // Controleer of er een mediaUrl is meegegeven
             if (mediaUrl) {
+                // Controleer of de mediaUrl een afbeelding is (jpeg, jpg, gif, png)
                 if (mediaUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                    // Voeg een <br> en een <img> element toe aan de innerHTML van het bericht
                     messageElement.innerHTML += `<br><img src="${mediaUrl}" alt="Afbeelding" style="max-width: 200px;">`;
-                } else if (mediaUrl.match(/\.(mp4|webm|ogg)$/i)) {
+                } 
+                // Controleer of de mediaUrl een video is (mp4, webm)
+                else if (mediaUrl.match(/\.(mp4|webm)$/i)) {
+                    // Voeg een <br> en een <video> element toe aan de innerHTML van het bericht
                     messageElement.innerHTML += `<br><video controls style="max-width: 300px;">
                                                     <source src="${mediaUrl}" type="video/mp4">
                                                 </video>`;
                 }
             }
 
+            // Voeg het <p> element toe aan het chat window
             chatWindow.appendChild(messageElement);
+
+            // Scroll het chat window naar beneden zodat het nieuwe bericht zichtbaar is
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
-
+        
         document.getElementById('message-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 console.log('Enter-toets gedetecteerd, verzenden van bericht...');
                 sendMessage();
             }
         });
-
+        
+        // Haal de gebruikers op via de server
         fetch('/users')
+            // Als de response is omgezet naar JSON, dan wordt de data doorgegeven aan de volgende .then()
             .then(response => response.json())
             .then(users => {
+                // Log de ontvangen gebruikerslijst naar de console
                 console.log('Gebruikerslijst ontvangen:', users);
+
+                // Selecteer het element waar de privé chats worden weergegeven
                 const privateChatsDiv = document.getElementById('private-chats');
+                // Maak het element leeg voordat nieuwe gebruikers worden toegevoegd
                 privateChatsDiv.innerHTML = '';
 
+                // Loop door de lijst van gebruikers
                 users.forEach(user => {
+                    // Maak een nieuw button element aan voor elke gebruiker
                     const button = document.createElement('button');
+                    // Stel de tekst van de button in op de gebruikersnaam
                     button.textContent = `${user.username}`;
+                    // Voeg wat marge toe aan de button voor styling
                     button.style.margin = '10px';
+                    // Voeg een click event toe aan de button
                     button.onclick = () => {
+                        // Log naar de console dat er wordt genavigeerd naar de chat met de gebruiker
                         console.log(`Navigeren naar chat met gebruiker: ${user.username}`);
+                        // Verwijs naar de privé chat pagina met de user_id van de geselecteerde gebruiker
                         window.location.href = `/private_chat.html?user_id=${user.id}`;
                     };
+                    // Voeg de button toe aan het privateChatsDiv element
                     privateChatsDiv.appendChild(button);
                 });
             })
-            .catch(err => console.error('Fout bij ophalen van gebruikers:', err));
+            // Als er een fout optreedt bij het ophalen van de gebruikers, log deze naar de console
+            .catch(err => console.error('Fout bij ophalen van gebruikers:', err));  
     </script>
 </body>
 </html>
