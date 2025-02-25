@@ -1,0 +1,72 @@
+# Mechatmk2
+
+## Overzicht
+Mechatmk2 is een Node.js-gebaseerde applicatie die gebruik maakt van Express.js, Socket.IO en een database-architectuur om real-time communicatie en dataverwerking mogelijk te maken. Dit project is ontworpen voor toepassingen waarbij snelle en efficiënte gegevensuitwisseling vereist is.
+
+## Functionaliteiten
+- **Real-time communicatie** met behulp van Socket.IO
+- **RESTful API** via Express.js voor gegevensbeheer
+- **Database-integratie** voor opslag en ophalen van gegevens
+- **Modulair en schaalbaar** dankzij een MVC-architectuur
+- **Ondersteuning voor bestandsuploads**
+
+## Projectstructuur
+
+```
+mechatmk2/
+│-- app.js                 # Hoofdapplicatiebestand
+│-- db.js                  # Databaseconfiguratie
+│-- .env                   # Omgevingsvariabelen voor de database connectie
+│-- package.json           # Projectafhankelijkheden
+│-- package-lock.json      # Geïnstalleerde pakketen
+│-- controllers/           # proces logica
+│-- models/                # Database modellen
+│-- routers/               # API-routes
+│-- sockets/               # WebSocket-logica
+│-- view/                  # Frontend gerelateerde bestanden
+│-- uploads/               # Bestandsopslag voor foto's en videos
+│-- LICENSE                # Licentie-informatie
+```
+
+## Installatie
+1. **Kloon de repository:**
+   ```
+   git clone https://github.com/mrbillerkilla/mechatmk2.git
+   cd mechatmk2
+   ```
+2. **Installeer de afhankelijkheden:**
+   ```
+   npm install
+   ```
+3. **Configureer de `.env`-variabelen**
+4. **Start de applicatie:**
+   ```
+   node app
+   ```
+
+## Bronnen
+Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling van dit project:
+
+- **Node.js & Express.js:** [https://expressjs.com/](https://expressjs.com/) - Gebruikt voor de server-side logica en het opzetten van API-endpoints.
+- **Socket.IO:** [https://socket.io/](https://socket.io/) - Gebruikt voor real-time communicatie tussen clients en de server.
+- **Database (MongoDB/PostgreSQL):**
+- **MongoDB:** [https://www.mongodb.com/](https://www.mongodb.com/) - Documentgebaseerde database voor flexibiliteit in gegevensopslag.
+- **PostgreSQL:** [https://www.postgresql.org/](https://www.postgresql.org/) - Relationele database voor gestructureerde gegevens.
+- **Mongoose:** [https://mongoosejs.com/](https://mongoosejs.com/) - Object Document Mapper (ODM) voor MongoDB.
+- **Sequelize:** [https://sequelize.org/](https://sequelize.org/) - ORM voor PostgreSQL en andere SQL-databases.
+- **dotenv:** [https://www.npmjs.com/package/dotenv](https://www.npmjs.com/package/dotenv) - Beheer van omgevingsvariabelen.
+- **bcrypt:** [https://www.npmjs.com/package/bcrypt](https://www.npmjs.com/package/bcrypt) - Voor hashing van wachtwoorden.
+- **jsonwebtoken (JWT):** [https://www.npmjs.com/package/jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) - Gebruikt voor authenticatie en beveiliging.
+- **Express-validator:** [https://express-validator.github.io/docs/](https://express-validator.github.io/docs/) - Middleware voor input-validatie.
+- **CORS:** [https://www.npmjs.com/package/cors](https://www.npmjs.com/package/cors) - Voor cross-origin resource sharing.
+- **MVC-principe:** [https://developer.mozilla.org/en-US/docs/Glossary/MVC](https://developer.mozilla.org/en-US/docs/Glossary/MVC) - Gebruikt als architectonisch patroon.
+- **Multer:** [https://www.npmjs.com/package/multer](https://www.npmjs.com/package/multer) - Middleware voor bestandsuploads.
+- **Nodemon:** [https://www.npmjs.com/package/nodemon](https://www.npmjs.com/package/nodemon) - Automatisch herstarten van de server tijdens ontwikkeling.
+- **Postman:** [https://www.postman.com/](https://www.postman.com/) - Gebruikt voor het testen van API-endpoints.
+- **Git & GitHub:** [https://git-scm.com/](https://git-scm.com/) - Versiebeheer en samenwerking.
+
+## Gebruik
+Dit project kan gebruikt worden voor:
+- **Met vrienden wilt chatten zonder vertraging**
+- **Gegevensuitwisseling tussen meerdere gebruikers**
+- **Backend voor interactieve webapplicaties**
