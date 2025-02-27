@@ -32,7 +32,6 @@ mechatmk2/
 1. **Kloon de repository:**
    ```
    git clone https://github.com/mrbillerkilla/mechatmk2.git
-   cd mechatmk2
    ```
 2. **Installeer de afhankelijkheden:**
    ```
@@ -45,28 +44,30 @@ mechatmk2/
    ```
 
 ## Bronnen
-Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling van dit project:
+Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling van dit project, inclusief specifieke documentatiepagina's:
 
-- **Node.js & Express.js:** [https://expressjs.com/](https://expressjs.com/) - Gebruikt voor de server-side logica en het opzetten van API-endpoints.
-- **Socket.IO:** [https://socket.io/](https://socket.io/) - Gebruikt voor real-time communicatie tussen clients en de server.
-- **Database (MongoDB/PostgreSQL):**
-- **MongoDB:** [https://www.mongodb.com/](https://www.mongodb.com/) - Documentgebaseerde database voor flexibiliteit in gegevensopslag.
-- **PostgreSQL:** [https://www.postgresql.org/](https://www.postgresql.org/) - Relationele database voor gestructureerde gegevens.
-- **Mongoose:** [https://mongoosejs.com/](https://mongoosejs.com/) - Object Document Mapper (ODM) voor MongoDB.
-- **Sequelize:** [https://sequelize.org/](https://sequelize.org/) - ORM voor PostgreSQL en andere SQL-databases.
-- **dotenv:** [https://www.npmjs.com/package/dotenv](https://www.npmjs.com/package/dotenv) - Beheer van omgevingsvariabelen.
-- **bcrypt:** [https://www.npmjs.com/package/bcrypt](https://www.npmjs.com/package/bcrypt) - Voor hashing van wachtwoorden.
-- **jsonwebtoken (JWT):** [https://www.npmjs.com/package/jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) - Gebruikt voor authenticatie en beveiliging.
-- **Express-validator:** [https://express-validator.github.io/docs/](https://express-validator.github.io/docs/) - Middleware voor input-validatie.
-- **CORS:** [https://www.npmjs.com/package/cors](https://www.npmjs.com/package/cors) - Voor cross-origin resource sharing.
-- **MVC-principe:** [https://developer.mozilla.org/en-US/docs/Glossary/MVC](https://developer.mozilla.org/en-US/docs/Glossary/MVC) - Gebruikt als architectonisch patroon.
-- **Multer:** [https://www.npmjs.com/package/multer](https://www.npmjs.com/package/multer) - Middleware voor bestandsuploads.
-- **Nodemon:** [https://www.npmjs.com/package/nodemon](https://www.npmjs.com/package/nodemon) - Automatisch herstarten van de server tijdens ontwikkeling.
-- **Postman:** [https://www.postman.com/](https://www.postman.com/) - Gebruikt voor het testen van API-endpoints.
-- **Git & GitHub:** [https://git-scm.com/](https://git-scm.com/) - Versiebeheer en samenwerking.
+- **Node.js & Express.js:** [Routing documentatie](https://expressjs.com/en/guide/routing.html) - Hoe routes werken binnen Express.js.
+- **Socket.IO:** [Realtime communicatie](https://socket.io/docs/v4/) - Hoe WebSockets worden beheerd.
+- **MongoDB:** [CRUD-operaties](https://www.mongodb.com/docs/manual/crud/) - Hoe je data kunt opslaan en ophalen.
+- **Mongoose:** [Schema's en modellen](https://mongoosejs.com/docs/models.html) - Hoe je schema's definieert in MongoDB.
+- **dotenv:** [Omgevingsvariabelenbeheer](https://www.npmjs.com/package/dotenv) - Hoe `.env` bestanden worden gebruikt.
+- **bcrypt:** [Wachtwoord hashing](https://www.npmjs.com/package/bcrypt) - Hoe je wachtwoorden veilig opslaat.
+- **Express-validator:** [Validatieregels](https://express-validator.github.io/docs/) - Hoe input-validatie werkt.
+- **CORS:** [Cross-origin requests](https://www.npmjs.com/package/cors) - Hoe je externe verzoeken beheert.
+- **Multer:** [Bestandsuploads](https://www.npmjs.com/package/multer) - Hoe je bestanden veilig uploadt.
+- **Postman:** [API testen](https://learning.postman.com/docs/getting-started/introduction/) - Hoe je API-verzoeken kunt testen.
+- **Git & GitHub:** [Versiebeheer](https://git-scm.com/book/en/v2) - Hoe je met Git repositories werkt.
+- **Fetch API:** [Werken met HTTP-verzoeken](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) - Hoe je externe API's aanroept.
+- **Event Listeners:** [Gebruikersinteracties beheren](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) - Hoe je events afvangt.
+- **WebSockets:** [Real-time communicatie](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) - Hoe je real-time data streams gebruikt.
+- **MDN Web Docs:** [Webontwikkeling documentatie](https://developer.mozilla.org/) - Algemene en gedetailleerde webtechnologieën.
 
 ## Gebruik
 Dit project kan gebruikt worden voor:
 - **Met vrienden wilt chatten zonder vertraging**
 - **Gegevensuitwisseling tussen meerdere gebruikers**
 - **Backend voor interactieve webapplicaties**
+
+## Licentie
+Dit project valt onder de MIT-licentie. Zie het bestand `LICENSE` voor details.
+
