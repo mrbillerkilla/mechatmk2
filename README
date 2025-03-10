@@ -124,6 +124,8 @@ Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling
 - **Fetch API:** [Werken met HTTP-verzoeken](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) - Hoe je externe API's aanroept.
 - **Event Listeners:** [Gebruikersinteracties beheren](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) - Hoe je events afvangt.
 - **WebSockets:** [Real-time communicatie](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) - Hoe je real-time data streams gebruikt.
+- **real-time-events** [Real-time events](https://socket.io/docs/v3/emitting-events/) - Hoe je real-time data stuurt naar elkaar.
+
 
 ## Gebruik
 Dit project kan gebruikt worden voor:
