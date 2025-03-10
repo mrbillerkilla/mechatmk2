@@ -28,23 +28,88 @@ mechatmk2/
 │-- LICENSE                # Licentie-informatie
 ```
 
+## Database Structuur
+De database **`mechat`** is een relationele database die draait op MariaDB. Hieronder volgt een gedetailleerde uitleg van de tabellen en hun relaties:
+
+### **Tabel: `users`**
+Bevat de gebruikersgegevens.
+- `id` (int, primary key, auto_increment): Unieke ID voor elke gebruiker.
+- `username` (varchar): Unieke gebruikersnaam.
+- `password` (varchar): Versleuteld wachtwoord.
+- `profile_color` (varchar, nullable): Kleurinstelling voor de gebruiker.
+
+### **Tabel: `blogs`**
+Opslag voor blogposts.
+- `id` (int, primary key, auto_increment): Unieke ID voor de blog.
+- `title` (varchar): Titel van de blog.
+- `content` (text): Inhoud van de blogpost.
+- `author` (varchar, foreign key): Gebruikersnaam van de auteur (verwijst naar `users.username`).
+- `created_at` (timestamp, default current_timestamp): Datum en tijd van aanmaak.
+
+### **Tabel: `groups`**
+Bevat alle aangemaakte chatgroepen.
+- `id` (int, primary key, auto_increment): Unieke ID voor de groep.
+- `group_name` (varchar): Naam van de groep.
+
+### **Tabel: `group_members`**
+Lijst van gebruikers per groep.
+- `id` (int, primary key, auto_increment): Unieke ID voor lidmaatschap.
+- `group_id` (int, foreign key): Verwijst naar `groups.id`.
+- `user_id` (int, foreign key): Verwijst naar `users.id`.
+
+### **Tabel: `group_messages`**
+Opslag voor berichten in groepschats.
+- `id` (int, primary key, auto_increment): Unieke ID voor het bericht.
+- `group_id` (int, foreign key): De groep waarin het bericht is verstuurd.
+- `sender_id` (int, foreign key): De afzender van het bericht.
+- `message` (text): De tekstinhoud van het bericht.
+- `created_at` (timestamp, default current_timestamp): Tijdstip van verzending.
+- `media_url` (varchar, nullable): Eventuele geüploade media.
+
+### **Tabel: `private_messages`**
+Opslag voor privéberichten tussen twee gebruikers.
+- `id` (int, primary key, auto_increment): Unieke ID voor het bericht.
+- `sender_id` (int, foreign key): De afzender van het bericht.
+- `receiver_id` (int, foreign key): De ontvanger van het bericht.
+- `message` (text): De tekstinhoud van het bericht.
+- `created_at` (timestamp, default current_timestamp): Tijdstip van verzending.
+- `media_url` (varchar, nullable): Eventuele geüploade media.
+
+### **Relaties tussen tabellen**
+- `blogs.author` is een foreign key naar `users.username`.
+- `group_members.group_id` is een foreign key naar `groups.id`.
+- `group_members.user_id` is een foreign key naar `users.id`.
+- `group_messages.group_id` is een foreign key naar `groups.id`.
+- `group_messages.sender_id` is een foreign key naar `users.id`.
+- `private_messages.sender_id` en `private_messages.receiver_id` verwijzen beide naar `users.id`.
+
+
+
 ## Installatie
 1. **Kloon de repository:**
    ```
-   git clone https://github.com/mrbillerkilla/mechatmk2.git
+   git clone <https://github.com/mrbillerkilla/mechatmk2.git>
    ```
 2. **Installeer de afhankelijkheden:**
    ```
    npm install
    ```
-3. **Configureer de `.env`-variabelen**
-4. **Start de applicatie:**
+3. **Maak de benodigde mappen aan:**
+   - De `uploads` map wordt gebruikt voor bestandsopslag en moet handmatig worden aangemaakt, omdat deze in `.gitignore` staat.
+   - De `.env` map moet worden aangemaakt en gevuld met de juiste omgevingsvariabelen.
+4. **Configureer de `.env`-variabelen**
+5. **Importeer de database:**
+   - Open **phpMyAdmin** of gebruik een MySQL-terminal.
+   - Maak een nieuwe database aan met de naam `mechat`.
+   - Importeer het SQL-bestand met de database structuur en testgegevens.
+6. **Start de applicatie:**
    ```
    node app
    ```
 
+
 ## Bronnen
-Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling van dit project, inclusief specifieke documentatiepagina's:
+Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling van dit project:
 
 - **Node.js & Express.js:** [Routing documentatie](https://expressjs.com/en/guide/routing.html) - Hoe routes werken binnen Express.js.
 - **Socket.IO:** [Realtime communicatie](https://socket.io/docs/v4/) - Hoe WebSockets worden beheerd.
@@ -56,11 +121,9 @@ Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling
 - **CORS:** [Cross-origin requests](https://www.npmjs.com/package/cors) - Hoe je externe verzoeken beheert.
 - **Multer:** [Bestandsuploads](https://www.npmjs.com/package/multer) - Hoe je bestanden veilig uploadt.
 - **Postman:** [API testen](https://learning.postman.com/docs/getting-started/introduction/) - Hoe je API-verzoeken kunt testen.
-- **Git & GitHub:** [Versiebeheer](https://git-scm.com/book/en/v2) - Hoe je met Git repositories werkt.
 - **Fetch API:** [Werken met HTTP-verzoeken](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) - Hoe je externe API's aanroept.
 - **Event Listeners:** [Gebruikersinteracties beheren](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) - Hoe je events afvangt.
 - **WebSockets:** [Real-time communicatie](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) - Hoe je real-time data streams gebruikt.
-- **MDN Web Docs:** [Webontwikkeling documentatie](https://developer.mozilla.org/) - Algemene en gedetailleerde webtechnologieën.
 
 ## Gebruik
 Dit project kan gebruikt worden voor:
@@ -70,4 +133,3 @@ Dit project kan gebruikt worden voor:
 
 ## Licentie
 Dit project valt onder de MIT-licentie. Zie het bestand `LICENSE` voor details.
-

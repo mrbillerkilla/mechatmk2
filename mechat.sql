@@ -40,7 +40,7 @@ CREATE TABLE `blogs` (
 --
 
 INSERT INTO `blogs` (`id`, `title`, `content`, `author`, `created_at`) VALUES
-(1, 'lalal', 'lalalalala', 'fatih', '2025-02-14 08:37:33');
+
 
 -- --------------------------------------------------------
 
@@ -58,8 +58,6 @@ CREATE TABLE `groups` (
 --
 
 INSERT INTO `groups` (`id`, `group_name`) VALUES
-(1, 'ewaaaa'),
-(2, 'nigg');
 
 -- --------------------------------------------------------
 
@@ -93,12 +91,6 @@ CREATE TABLE `group_messages` (
 --
 
 INSERT INTO `group_messages` (`id`, `group_id`, `sender_id`, `message`, `created_at`, `media_url`) VALUES
-(1, 1, 1, 'ewa', '2025-02-13 20:02:41', NULL),
-(2, 1, 1, '', '2025-02-13 20:03:34', 'http://localhost:3000/uploads/1739480614209-van-mendoza-r7YZXv5f5cc-unsplash.jpg'),
-(3, 2, 1, '', '2025-02-14 08:08:20', 'http://localhost:3000/uploads/1739524100751-van-mendoza-r7YZXv5f5cc-unsplash.jpg'),
-(4, 2, 1, '', '2025-02-14 08:08:20', 'http://localhost:3000/uploads/1739524100752-van-mendoza-r7YZXv5f5cc-unsplash.jpg'),
-(5, 2, 1, '', '2025-02-14 08:08:20', 'http://localhost:3000/uploads/1739524100755-van-mendoza-r7YZXv5f5cc-unsplash.jpg'),
-(6, 2, 1, 'ewaaa', '2025-02-15 09:16:57', NULL);
 
 -- --------------------------------------------------------
 
@@ -120,9 +112,8 @@ CREATE TABLE `private_messages` (
 --
 
 INSERT INTO `private_messages` (`id`, `sender_id`, `receiver_id`, `message`, `created_at`, `media_url`) VALUES
-(1, 1, 2, 'hai', '2025-02-13 21:52:32', NULL),
-(2, 2, 1, 'wdj vanavond', '2025-02-13 21:52:40', NULL),
-(3, 2, 1, '', '2025-02-13 21:52:50', 'http://localhost:3000/uploads/1739483570520-van-mendoza-r7YZXv5f5cc-unsplash.jpg');
+
+
 
 -- --------------------------------------------------------
 
@@ -142,8 +133,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `profile_color`) VALUES
-(1, 'fatih', '$2b$10$741la35SxZoGI0Tanx.KKuBZ2pEBWUOC5lQoi0ZGaNYcDIb5AXT9e', 'skyblue'),
-(2, 'piet', '$2b$10$XCaGOQUErcKAiTxBvWqKreLWhRiOKmrYbcfU7X7QmezgtlhPumNWm', NULL);
+
 
 --
 -- Indexes for dumped tables
