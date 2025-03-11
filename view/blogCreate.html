@@ -41,6 +41,7 @@
                 // als de response niet ok is, dan wordt er een error gegooid
                 if (!response.ok) {
                     throw new Error(`Fout: ${response.status} - ${response.statusText}`);
+                    
                 }
                 // als de response wel ok is, dan wordt de response omgezet naar JSON en doorgegeven aan de volgende .then()
                 return response.json();

@@ -113,11 +113,8 @@ Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling
 
 - **Node.js & Express.js:** [Routing documentatie](https://expressjs.com/en/guide/routing.html) - Hoe routes werken binnen Express.js.
 - **Socket.IO:** [Realtime communicatie](https://socket.io/docs/v4/) - Hoe WebSockets worden beheerd.
-- **MongoDB:** [CRUD-operaties](https://www.mongodb.com/docs/manual/crud/) - Hoe je data kunt opslaan en ophalen.
-- **Mongoose:** [Schema's en modellen](https://mongoosejs.com/docs/models.html) - Hoe je schema's definieert in MongoDB.
 - **dotenv:** [Omgevingsvariabelenbeheer](https://www.npmjs.com/package/dotenv) - Hoe `.env` bestanden worden gebruikt.
 - **bcrypt:** [Wachtwoord hashing](https://www.npmjs.com/package/bcrypt) - Hoe je wachtwoorden veilig opslaat.
-- **Express-validator:** [Validatieregels](https://express-validator.github.io/docs/) - Hoe input-validatie werkt.
 - **CORS:** [Cross-origin requests](https://www.npmjs.com/package/cors) - Hoe je externe verzoeken beheert.
 - **Multer:** [Bestandsuploads](https://www.npmjs.com/package/multer) - Hoe je bestanden veilig uploadt.
 - **Postman:** [API testen](https://learning.postman.com/docs/getting-started/introduction/) - Hoe je API-verzoeken kunt testen.
@@ -125,6 +122,9 @@ Hier is een uitgebreide lijst van bronnen die gebruikt zijn voor de ontwikkeling
 - **Event Listeners:** [Gebruikersinteracties beheren](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) - Hoe je events afvangt.
 - **WebSockets:** [Real-time communicatie](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) - Hoe je real-time data streams gebruikt.
 - **real-time-events** [Real-time events](https://socket.io/docs/v3/emitting-events/) - Hoe je real-time data stuurt naar elkaar.
+- **SQL-Inserts** [sql inserts](https://www.geeksforgeeks.org/how-to-use-prepared-statements-in-mysql-with-nodejs/) - Hoe je het simpelste en veiligste data verstuurd naar de database.
+- **login en regristratie** [login/regristratie](https://codeshack.io/basic-login-system-nodejs-express-mysql/) - Hoe je login en regristratie moet maken. 
+
 
 
 ## Gebruik
